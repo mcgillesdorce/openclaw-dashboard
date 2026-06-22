@@ -1,0 +1,65 @@
+{
+  "updated": "2026-06-22T01:25:11",
+  "total_month_spend": 2.13,
+  "services": [
+    {
+      "service": "anthropic",
+      "label": "Anthropic",
+      "icon": "\ud83e\udde0",
+      "color": "#a78bfa",
+      "source": "manual",
+      "month_spend_usd": 0.0,
+      "all_time_spend_usd": 0.0,
+      "note": "Set ANTHROPIC_CREDITS_BALANCE=<amount> in .env after each top-up",
+      "low_credits": false
+    },
+    {
+      "service": "fal",
+      "label": "fal.ai (Seedance)",
+      "icon": "\ud83c\udfac",
+      "color": "#34e0c4",
+      "source": "unknown",
+      "month_spend_usd": 2.0,
+      "all_time_spend_usd": 2.0,
+      "note": "Set FAL_CREDITS_BALANCE=<amount> in .env or add FAL_KEY",
+      "low_credits": false
+    },
+    {
+      "service": "elevenlabs",
+      "label": "ElevenLabs",
+      "icon": "\ud83c\udf99\ufe0f",
+      "color": "#f5b14c",
+      "source": "unknown",
+      "month_spend_usd": 0.13,
+      "all_time_spend_usd": 0.13,
+      "note": "Add ELEVENLABS_API_KEY (direct ElevenLabs key) to .env",
+      "low_credits": false
+    },
+    {
+      "service": "google",
+      "label": "Google Drive",
+      "icon": "\u2601\ufe0f",
+      "color": "#60a5fa",
+      "source": "manual",
+      "credits_usd": null,
+      "note": "Free tier \u2014 15 GB shared quota",
+      "month_spend_usd": 0.0,
+      "all_time_spend_usd": 0.0,
+      "low_credits": false
+    },
+    {
+      "service": "vercel",
+      "label": "Vercel",
+      "icon": "\u25b2",
+      "color": "#e6eef5",
+      "source": "manual",
+      "credits_usd": null,
+      "note": "Hobby plan \u2014 free",
+      "month_spend_usd": 0,
+      "all_time_spend_usd": 0,
+      "low_credits": false
+    }
+  ],
+  "alerts": [],
+  "has_alerts": false
+}
