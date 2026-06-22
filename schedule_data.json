@@ -79,5 +79,19 @@
     "total_cost": "$0.06",
     "errors": 0
   },
-  "cache_bust": "1782148792.2612894"
+  "upcoming": [
+    {
+      "time": "4:00 PM",
+      "agent": "finch",
+      "task": "cost_analysis",
+      "description": "Evening cost review"
+    },
+    {
+      "time": "8:00 PM",
+      "agent": "psyche",
+      "task": "state_sync",
+      "description": "Sync state & context"
+    }
+  ],
+  "cache_bust": "1782149015.2926033"
 }
