@@ -88,6 +88,13 @@
     </div>
   </div>
 
+  <!-- Credits & Balances -->
+  <div class="section">
+    <div class="section-title">Credits &amp; Balances — Live Status</div>
+    <div id="creditsAlerts"></div>
+    <div class="grid g3" id="creditsGrid"></div>
+  </div>
+
   <!-- Recent transactions -->
   <div class="section">
     <div class="section-title">Recent Charges</div>
@@ -299,6 +306,82 @@ function drawTrend(trend){
 }
 
 load();window.addEventListener("resize",()=>load());
+
+// ── Credits ──────────────────────────────────────────────────────────────────
+async function loadCredits(){
+  let data;
+  try{
+    const url=(window.__CREDITS_URL__||window.__DATA_URL__?.replace('dashboard_data','credits_data')||'credits_data.json');
+    const r=await fetch(url,{cache:'no-store'});
+    if(r.ok) data=await r.json();
+  }catch(e){}
+  if(data) renderCredits(data);
+}
+
+function renderCredits(d){
+  // Alert banner
+  const ab=document.getElementById('creditsAlerts');
+  if(d.has_alerts&&d.alerts?.length){
+    ab.innerHTML=`<div style="background:var(--amber-faint);border:1px solid var(--amber);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">⚠️</span>
+      <div>
+        <div style="font-weight:600;color:var(--amber)">Low credits detected</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.alerts.join(' · ')}</div>
+      </div>
+    </div>`;
+  } else {
+    ab.innerHTML='';
+  }
+
+  const grid=document.getElementById('creditsGrid');
+  grid.innerHTML=(d.services||[]).map(s=>{
+    const isLow=s.low_credits;
+    const borderColor=isLow?'var(--amber)':'var(--line)';
+    let mainNum='—', mainLabel='', pctBar='';
+
+    if(s.chars_remaining!=null){
+      mainNum=(s.chars_remaining/1000).toFixed(0)+'K';
+      mainLabel='chars remaining';
+      const pct=s.pct_remaining||0;
+      const col=pct<20?'var(--red)':pct<50?'var(--amber)':'var(--green)';
+      pctBar=`<div class="meter-wrap"><div class="meter-fill" style="width:${Math.min(100,pct)}%;background:${col}"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:3px">
+          <span>${pct}% remaining</span><span>resets ${s.resets_on||'?'}</span></div>`;
+    } else if(s.credits_usd!=null){
+      mainNum='$'+Number(s.credits_usd).toFixed(2);
+      mainLabel='estimated remaining';
+      if(s.pct_remaining!=null){
+        const pct=s.pct_remaining;
+        const col=pct<20?'var(--red)':pct<50?'var(--amber)':'var(--green)';
+        pctBar=`<div class="meter-wrap"><div class="meter-fill" style="width:${Math.min(100,pct)}%;background:${col}"></div></div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px">${pct}% of balance remaining</div>`;
+      }
+    } else {
+      mainNum=s.service==='vercel'||s.service==='google'?'Free':'—';
+      mainLabel=s.service==='vercel'?'Hobby plan':s.service==='google'?'15 GB free':'';
+    }
+
+    const sourceTag=s.source==='api'?'<span class="badge badge-cyan" style="font-size:10px">live API</span>':
+      s.source==='manual'?'<span class="badge badge-muted" style="font-size:10px">estimated</span>':'';
+
+    return`<div class="panel" style="border-color:${borderColor}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:34px;height:34px;border-radius:9px;background:${s.color||'var(--line)'}22;color:${s.color||'var(--text)'};display:flex;align-items:center;justify-content:center;font-size:17px">${s.icon||'💳'}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${s.label||s.service}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:2px">${sourceTag}${isLow?'<span style="color:var(--amber);font-size:11px">⚠️ low</span>':''}</div>
+        </div>
+      </div>
+      <div class="mono" style="font-size:28px;font-weight:800;color:${isLow?'var(--amber)':s.color||'var(--text)'}">${mainNum}</div>
+      <div style="font-size:11px;color:var(--faint);margin-bottom:8px">${mainLabel}</div>
+      ${pctBar}
+      <div class="stat-row" style="margin-top:8px"><span class="label">This month</span><span class="val mono">$${Number(s.month_spend_usd||0).toFixed(2)}</span></div>
+      ${s.note?`<div style="font-size:11px;color:var(--faint);margin-top:6px;padding-top:6px;border-top:1px solid var(--line)">${s.note}</div>`:''}
+    </div>`;
+  }).join('')||`<div class="empty" style="grid-column:1/-1">Run sync_dashboard.py to fetch credit data</div>`;
+}
+
+loadCredits();
 </script>
 </body>
 </html>
