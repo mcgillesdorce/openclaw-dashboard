@@ -10,6 +10,7 @@ const tabs = [
   { label: 'Schedule', href: '/schedule' },
   { label: 'Analytics', href: '/analytics' },
   { label: 'Agents', href: '/agents' },
+  { label: 'Approvals', href: '/approvals' },
   { label: 'Billing', href: '/billing' },
   { label: 'Tracker', href: '/tracker' },
 ];
@@ -57,7 +58,12 @@ export default function Navigation() {
           })}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Approvals indicator */}
+          <div style={{ fontSize: '12px', fontWeight: '600', color: '#f59e0b', padding: '4px 8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '4px' }}>
+            ⏳ Approvals
+          </div>
+          
           <button
             onClick={handleRefresh}
             style={{
