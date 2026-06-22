@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-22T09:38:27",
-  "total_month_spend": 2.13,
+  "updated": "2026-06-22T09:44:58",
+  "total_month_spend": 24.13,
   "services": [
     {
       "service": "anthropic",
@@ -9,7 +9,7 @@
       "color": "#a78bfa",
       "source": "manual",
       "month_spend_usd": 0.0,
-      "all_time_spend_usd": 0.0,
+      "all_time_spend_usd": 409.4,
       "note": "Set ANTHROPIC_CREDITS_BALANCE=<amount> in .env after each top-up",
       "low_credits": false
     },
@@ -20,7 +20,7 @@
       "color": "#34e0c4",
       "source": "unknown",
       "month_spend_usd": 2.0,
-      "all_time_spend_usd": 2.0,
+      "all_time_spend_usd": 72.0,
       "note": "Set FAL_CREDITS_BALANCE=<amount> in .env or add FAL_KEY",
       "low_credits": false
     },
@@ -30,8 +30,8 @@
       "icon": "\ud83c\udf99\ufe0f",
       "color": "#f5b14c",
       "source": "api",
-      "month_spend_usd": 0.13,
-      "all_time_spend_usd": 0.13,
+      "month_spend_usd": 22.13,
+      "all_time_spend_usd": 22.13,
       "chars_used": 8946,
       "chars_limit": 300000,
       "chars_remaining": 291054,
