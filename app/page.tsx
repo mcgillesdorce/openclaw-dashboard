@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import Chart from 'chart.js/auto';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface Video {
   id?: string;
@@ -72,7 +74,7 @@ export default function Overview() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    costChartRef.current = new Chart(ctx, {
+    costChartRef.current = new ChartJS(ctx, {
       type: 'line',
       data: {
         labels: sorted.map(([d]) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
