@@ -1,0 +1,12 @@
+# Data URL config — contains Gist URLs, gitignored so live URLs stay private
+config.js
+
+# Local data files — never commit real pipeline data
+dashboard_data.json
+billing_data.json
+*.jsonl
+
+# Editor / OS
+.DS_Store
+.env
+*.env

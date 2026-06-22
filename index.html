@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal — Psychology Video Pipeline</title>
+<style>
+  /* ---------- Design tokens ----------
+     Subject: a faceless psychology-content studio that runs while you sleep.
+     Direction: a quiet "night-shift control room" — deep ink ground, a single
+     phosphor-cyan readout accent like an old oscilloscope, one warm amber for
+     money/warnings. Mono for numbers (they're instruments), humanist sans for
+     labels. The signature: the cost-per-approved gauge reads like a meter, not
+     a stat card. Boldness spent there; everything else stays disciplined. */
+  :root{
+    --ink:#0c1116; --ink-2:#121a22; --panel:#161f29; --line:#243240;
+    --text:#e6eef5; --muted:#7d93a6; --faint:#4d6376;
+    --cyan:#34e0c4; --cyan-dim:#1d7d70; --amber:#f5b14c; --red:#ef6b6b;
+    --green:#5fd68a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 75% -10%, #14202b 0%, transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45; padding:28px;
+    min-height:100vh;
+  }
+  .mono{font-family:"SF Mono","JetBrains Mono",ui-monospace,"Cascadia Code",monospace;
+    font-variant-numeric:tabular-nums;}
+  header{display:flex;align-items:baseline;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;margin-bottom:24px;border-bottom:1px solid var(--line);
+    padding-bottom:18px;}
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .brand h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 12px var(--cyan);align-self:center;
+    animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .brand .sub{color:var(--muted);font-size:13px}
+  header .updated{color:var(--faint);font-size:12px}
+  header .src{font-size:11px;color:var(--faint);margin-top:3px}
+  .tabs{display:flex;gap:6px;margin-bottom:20px}
+  .tab{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:500;
+    color:var(--muted);background:var(--panel);border:1px solid var(--line);
+    text-decoration:none}
+  .tab.active{color:var(--ink);background:var(--cyan);border-color:var(--cyan)}
+
+  /* ---- top row: the gauge (signature) + supporting KPIs ---- */
+  .top{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:18px;
+    margin-bottom:18px}
+  @media(max-width:840px){.top{grid-template-columns:1fr}}
+
+  .gauge{background:linear-gradient(180deg,var(--ink-2),var(--panel));
+    border:1px solid var(--line);border-radius:16px;padding:24px;position:relative;
+    overflow:hidden}
+  .gauge .label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--muted)}
+  .gauge .big{font-size:54px;font-weight:600;letter-spacing:-.02em;margin-top:8px;
+    color:var(--cyan);line-height:1}
+  .gauge .big .cur{font-size:28px;color:var(--cyan-dim);vertical-align:top;
+    margin-right:2px}
+  .gauge .vs{margin-top:14px;font-size:13px;color:var(--muted)}
+  .gauge .vs b{color:var(--text)}
+  .gauge .meter{margin-top:18px;height:6px;background:var(--ink);border-radius:3px;
+    overflow:hidden}
+  .gauge .meter i{display:block;height:100%;
+    background:linear-gradient(90deg,var(--cyan-dim),var(--cyan))}
+  .gauge .note{margin-top:10px;font-size:12px;color:var(--faint)}
+
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px 16px 14px}
+  .kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+    color:var(--muted)}
+  .kpi .v{font-size:26px;font-weight:600;margin-top:6px;letter-spacing:-.01em}
+  .kpi .v small{font-size:14px;color:var(--muted);font-weight:400}
+  .kpi .d{font-size:12px;margin-top:4px;color:var(--faint)}
+  .kpi.good .v{color:var(--green)} .kpi.warn .v{color:var(--amber)}
+
+  /* ---- charts + lists ---- */
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+  @media(max-width:840px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:18px}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;
+    color:var(--muted);margin-bottom:14px;font-weight:600}
+  svg{display:block;width:100%;overflow:visible}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar{display:grid;grid-template-columns:120px 1fr 56px;align-items:center;gap:10px;
+    font-size:13px}
+  .bar .name{color:var(--text);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis}
+  .bar .track{height:8px;background:var(--ink);border-radius:4px;overflow:hidden}
+  .bar .track i{display:block;height:100%;border-radius:4px;
+    background:linear-gradient(90deg,var(--cyan-dim),var(--cyan))}
+  .bar .num{text-align:right;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;
+    text-transform:uppercase;letter-spacing:.08em;padding:8px 10px;
+    border-bottom:1px solid var(--line)}
+  td{padding:9px 10px;border-bottom:1px solid var(--ink-2)}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;
+    font-weight:500}
+  .pill.posted{background:rgba(52,224,196,.12);color:var(--cyan)}
+  .pill.approved{background:rgba(95,214,138,.12);color:var(--green)}
+  .pill.rejected{background:rgba(239,107,107,.12);color:var(--red)}
+  .pill.pending_review{background:rgba(245,177,76,.12);color:var(--amber)}
+  .full{grid-column:1/-1}
+  .muted{color:var(--muted)} .r{text-align:right}
+  .empty{color:var(--faint);font-size:13px;padding:24px;text-align:center}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Signal</h1>
+      <span class="sub">psychology pipeline · performance</span>
+    </div>
+    <div>
+      <div class="updated mono" id="updated">—</div>
+      <div class="src" id="src"></div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <a class="tab active" href="dashboard.html">Performance</a>
+    <a class="tab" href="billing.html">Billing</a>
+  </nav>
+
+  <!-- signature gauge + supporting kpis -->
+  <section class="top">
+    <div class="gauge">
+      <div class="label">Cost per approved video</div>
+      <div class="big mono"><span class="cur">$</span><span id="cpa">—</span></div>
+      <div class="vs">vs <b class="mono" id="cpg">$—</b> per video generated —
+        the gap is what you spend on rejects.</div>
+      <div class="meter"><i id="approvalMeter" style="width:0%"></i></div>
+      <div class="note"><span class="mono" id="approvalNote">—</span> of generated
+        videos clear review.</div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Daily generation cost · last 14 days</h2>
+      <svg id="costChart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="card">
+      <h2>Topics by avg views</h2>
+      <div class="bars" id="topicBars"></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Top performers</h2>
+      <div class="bars" id="topVideos"></div>
+    </div>
+    <div class="card">
+      <h2>Engagement snapshot</h2>
+      <div class="kpis" id="engKpis" style="grid-template-columns:1fr 1fr"></div>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2>Recent videos</h2>
+    <div style="overflow-x:auto">
+      <table id="recentTable">
+        <thead><tr>
+          <th>Topic</th><th>Status</th><th class="r">Cost</th>
+          <th class="r">Rating</th><th class="r">Views</th><th>Generated</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+<script src="config.js"></script>
+<script>
+// ---- Sample data: used only if dashboard_data.json can't be fetched ----
+const SAMPLE = {
+  updated:new Date().toISOString().slice(0,19),
+  kpis:{videos_total:35,videos_approved:25,videos_posted:25,approval_rate_pct:71.4,
+    total_cost_usd:53.65,cost_per_approved_usd:2.15,total_views:307300,
+    avg_engagement_pct:11.32,total_follows:1223},
+  cost_trend:[["06-08",4.1],["06-09",3.6],["06-10",5.2],["06-11",4.4],["06-12",3.1],
+    ["06-13",4.8],["06-14",3.9],["06-15",5.5],["06-16",2.9],["06-17",4.2],
+    ["06-18",3.7],["06-19",4.9],["06-20",3.3],["06-21",4.0]]
+    .map(([date,cost])=>({date,cost})),
+  top_videos:[
+    {topic:"Loss Aversion",views:51000,engagement:13.2,url:""},
+    {topic:"The Spotlight Effect",views:22000,engagement:10.8,url:""},
+    {topic:"Dunning-Kruger",views:9000,engagement:9.4,url:""},
+    {topic:"Cognitive Dissonance",views:4200,engagement:8.1,url:""},
+    {topic:"The Halo Effect",views:1500,engagement:6.9,url:""}],
+  topic_leaderboard:[
+    {topic:"Loss Aversion",avg_views:28500,count:3},
+    {topic:"The Spotlight Effect",avg_views:16200,count:2},
+    {topic:"Dunning-Kruger",avg_views:7400,count:4},
+    {topic:"Cognitive Dissonance",avg_views:5100,count:3},
+    {topic:"The Halo Effect",avg_views:2300,count:2}],
+  recent:[]
+};
+
+function fmt(n){return n==null?"—":n.toLocaleString()}
+function money(n){return n==null?"$—":"$"+Number(n).toFixed(2)}
+
+async function load(){
+  let data, live=false;
+  try{
+    const url = window.__DATA_URL__ || "dashboard_data.json";
+    const res = await fetch(url,{cache:"no-store"});
+    if(res.ok){ data = await res.json(); live=true; }
+  }catch(e){/* fall through to sample */}
+  if(!data) data = SAMPLE;
+  render(data, live);
+}
+
+function render(d, live){
+  const k = d.kpis;
+  document.getElementById("updated").textContent = "updated " + (d.updated||"").replace("T"," ");
+  document.getElementById("src").textContent = live ? "live data" : "sample data — point at your dashboard_data.json";
+
+  // gauge
+  const cpg = k.total_cost_usd && k.videos_total ? k.total_cost_usd/k.videos_total : null;
+  document.getElementById("cpa").textContent = k.cost_per_approved_usd!=null ? Number(k.cost_per_approved_usd).toFixed(2) : "—";
+  document.getElementById("cpg").textContent = money(cpg);
+  document.getElementById("approvalMeter").style.width = (k.approval_rate_pct||0)+"%";
+  document.getElementById("approvalNote").textContent = (k.approval_rate_pct||0)+"%";
+
+  // kpi cards
+  const cards = [
+    {k:"Videos made",v:fmt(k.videos_total)},
+    {k:"Approved",v:fmt(k.videos_approved),d:(k.approval_rate_pct||0)+"% rate"},
+    {k:"Total spend",v:money(k.total_cost_usd)},
+    {k:"Total views",v:fmt(k.total_views)},
+    {k:"Avg engagement",v:(k.avg_engagement_pct||0)+"%",cls:k.avg_engagement_pct>=8?"good":""},
+    {k:"New follows",v:fmt(k.total_follows)},
+  ];
+  document.getElementById("kpis").innerHTML = cards.map(c=>
+    `<div class="kpi ${c.cls||''}"><div class="k">${c.k}</div>
+     <div class="v mono">${c.v}</div>${c.d?`<div class="d">${c.d}</div>`:""}</div>`).join("");
+
+  // cost line chart
+  drawLine(d.cost_trend||[]);
+
+  // topic bars
+  const topics = d.topic_leaderboard||[];
+  const maxT = Math.max(1,...topics.map(t=>t.avg_views));
+  document.getElementById("topicBars").innerHTML = topics.length? topics.map(t=>
+    `<div class="bar"><span class="name" title="${t.topic}">${t.topic}</span>
+     <span class="track"><i style="width:${t.avg_views/maxT*100}%"></i></span>
+     <span class="num mono">${fmt(t.avg_views)}</span></div>`).join("")
+    : `<div class="empty">No view data yet. Log TikTok stats to populate this.</div>`;
+
+  // top videos
+  const tv = d.top_videos||[];
+  const maxV = Math.max(1,...tv.map(v=>v.views));
+  document.getElementById("topVideos").innerHTML = tv.length? tv.map(v=>
+    `<div class="bar"><span class="name" title="${v.topic}">${v.topic}</span>
+     <span class="track"><i style="width:${v.views/maxV*100}%"></i></span>
+     <span class="num mono">${fmt(v.views)}</span></div>`).join("")
+    : `<div class="empty">No posted videos with stats yet.</div>`;
+
+  // engagement snapshot
+  document.getElementById("engKpis").innerHTML = [
+    {k:"Avg engagement",v:(k.avg_engagement_pct||0)+"%"},
+    {k:"Views / approved",v:fmt(k.videos_approved? Math.round((k.total_views||0)/k.videos_approved):0)},
+    {k:"Follows / 1k views",v:(k.total_views? ((k.total_follows||0)/k.total_views*1000).toFixed(1):"0")},
+    {k:"Posted live",v:fmt(k.videos_posted)},
+  ].map(c=>`<div class="kpi"><div class="k">${c.k}</div>
+     <div class="v mono">${c.v}</div></div>`).join("");
+
+  // recent table
+  const rows = (d.recent||[]).map(r=>`<tr>
+    <td>${r.topic||"—"}</td>
+    <td><span class="pill ${r.status||'pending_review'}">${(r.status||'').replace('_',' ')}</span></td>
+    <td class="r mono">${money(r.cost)}</td>
+    <td class="r mono">${r.rating?('★'.repeat(r.rating)):'—'}</td>
+    <td class="r mono">${r.views!=null?fmt(r.views):'—'}</td>
+    <td class="muted mono">${(r.generated_at||'').slice(0,10)}</td>
+  </tr>`).join("");
+  document.querySelector("#recentTable tbody").innerHTML = rows ||
+    `<tr><td colspan="6" class="empty">No videos recorded yet.</td></tr>`;
+}
+
+function drawLine(trend){
+  const svg = document.getElementById("costChart");
+  const W=600,H=200,pad=24;
+  if(!trend.length){svg.innerHTML=`<text x="${W/2}" y="${H/2}" fill="#4d6376" text-anchor="middle" font-size="13">No cost data yet</text>`;return;}
+  const xs = trend.map((_,i)=> pad + i*(W-2*pad)/Math.max(1,trend.length-1));
+  const max = Math.max(...trend.map(t=>t.cost))*1.2 || 1;
+  const y = v => H-pad - (v/max)*(H-2*pad);
+  const pts = trend.map((t,i)=>`${xs[i]},${y(t.cost)}`).join(" ");
+  const area = `${pad},${H-pad} ${pts} ${xs[xs.length-1]},${H-pad}`;
+  let g="";
+  for(let i=0;i<=3;i++){const yy=pad+i*(H-2*pad)/3;
+    g+=`<line x1="${pad}" y1="${yy}" x2="${W-pad}" y2="${yy}" stroke="#1a2630" stroke-width="1"/>`;}
+  svg.innerHTML = `
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#34e0c4" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#34e0c4" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${g}
+    <polygon points="${area}" fill="url(#ag)"/>
+    <polyline points="${pts}" fill="none" stroke="#34e0c4" stroke-width="2"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    ${trend.map((t,i)=>`<circle cx="${xs[i]}" cy="${y(t.cost)}" r="2.5" fill="#34e0c4"/>`).join("")}
+    <text x="${pad}" y="14" fill="#4d6376" font-size="10" font-family="monospace">$${max.toFixed(0)}</text>
+  `;
+}
+
+load();
+</script>
+</body>
+</html>
