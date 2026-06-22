@@ -2,323 +2,253 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signal — Psychology Video Pipeline</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Psyche — Overview</title>
+<link rel="stylesheet" href="shared.css">
 <style>
-  /* ---------- Design tokens ----------
-     Subject: a faceless psychology-content studio that runs while you sleep.
-     Direction: a quiet "night-shift control room" — deep ink ground, a single
-     phosphor-cyan readout accent like an old oscilloscope, one warm amber for
-     money/warnings. Mono for numbers (they're instruments), humanist sans for
-     labels. The signature: the cost-per-approved gauge reads like a meter, not
-     a stat card. Boldness spent there; everything else stays disciplined. */
-  :root{
-    --ink:#0c1116; --ink-2:#121a22; --panel:#161f29; --line:#243240;
-    --text:#e6eef5; --muted:#7d93a6; --faint:#4d6376;
-    --cyan:#34e0c4; --cyan-dim:#1d7d70; --amber:#f5b14c; --red:#ef6b6b;
-    --green:#5fd68a;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:
-      radial-gradient(1200px 600px at 75% -10%, #14202b 0%, transparent 60%),
-      var(--ink);
-    color:var(--text);
-    font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-    -webkit-font-smoothing:antialiased; line-height:1.45; padding:28px;
-    min-height:100vh;
-  }
-  .mono{font-family:"SF Mono","JetBrains Mono",ui-monospace,"Cascadia Code",monospace;
-    font-variant-numeric:tabular-nums;}
-  header{display:flex;align-items:baseline;justify-content:space-between;
-    gap:16px;flex-wrap:wrap;margin-bottom:24px;border-bottom:1px solid var(--line);
-    padding-bottom:18px;}
-  .brand{display:flex;align-items:baseline;gap:14px}
-  .brand h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
-  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);
-    box-shadow:0 0 12px var(--cyan);align-self:center;
-    animation:pulse 2.4s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .brand .sub{color:var(--muted);font-size:13px}
-  header .updated{color:var(--faint);font-size:12px}
-  header .src{font-size:11px;color:var(--faint);margin-top:3px}
-  .tabs{display:flex;gap:6px;margin-bottom:20px}
-  .tab{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:500;
-    color:var(--muted);background:var(--panel);border:1px solid var(--line);
-    text-decoration:none}
-  .tab.active{color:var(--ink);background:var(--cyan);border-color:var(--cyan)}
-
-  /* ---- top row: the gauge (signature) + supporting KPIs ---- */
-  .top{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:18px;
-    margin-bottom:18px}
-  @media(max-width:840px){.top{grid-template-columns:1fr}}
-
-  .gauge{background:linear-gradient(180deg,var(--ink-2),var(--panel));
-    border:1px solid var(--line);border-radius:16px;padding:24px;position:relative;
-    overflow:hidden}
-  .gauge .label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;
-    color:var(--muted)}
-  .gauge .big{font-size:54px;font-weight:600;letter-spacing:-.02em;margin-top:8px;
-    color:var(--cyan);line-height:1}
-  .gauge .big .cur{font-size:28px;color:var(--cyan-dim);vertical-align:top;
-    margin-right:2px}
-  .gauge .vs{margin-top:14px;font-size:13px;color:var(--muted)}
-  .gauge .vs b{color:var(--text)}
-  .gauge .meter{margin-top:18px;height:6px;background:var(--ink);border-radius:3px;
-    overflow:hidden}
-  .gauge .meter i{display:block;height:100%;
-    background:linear-gradient(90deg,var(--cyan-dim),var(--cyan))}
-  .gauge .note{margin-top:10px;font-size:12px;color:var(--faint)}
-
-  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
-  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:16px 16px 14px}
-  .kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;
-    color:var(--muted)}
-  .kpi .v{font-size:26px;font-weight:600;margin-top:6px;letter-spacing:-.01em}
-  .kpi .v small{font-size:14px;color:var(--muted);font-weight:400}
-  .kpi .d{font-size:12px;margin-top:4px;color:var(--faint)}
-  .kpi.good .v{color:var(--green)} .kpi.warn .v{color:var(--amber)}
-
-  /* ---- charts + lists ---- */
-  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
-  @media(max-width:840px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:18px}
-  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;
-    color:var(--muted);margin-bottom:14px;font-weight:600}
-  svg{display:block;width:100%;overflow:visible}
-  .bars{display:flex;flex-direction:column;gap:9px}
-  .bar{display:grid;grid-template-columns:120px 1fr 56px;align-items:center;gap:10px;
-    font-size:13px}
-  .bar .name{color:var(--text);white-space:nowrap;overflow:hidden;
-    text-overflow:ellipsis}
-  .bar .track{height:8px;background:var(--ink);border-radius:4px;overflow:hidden}
-  .bar .track i{display:block;height:100%;border-radius:4px;
-    background:linear-gradient(90deg,var(--cyan-dim),var(--cyan))}
-  .bar .num{text-align:right;color:var(--muted)}
-
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;
-    text-transform:uppercase;letter-spacing:.08em;padding:8px 10px;
-    border-bottom:1px solid var(--line)}
-  td{padding:9px 10px;border-bottom:1px solid var(--ink-2)}
-  tr:last-child td{border-bottom:none}
-  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;
-    font-weight:500}
-  .pill.posted{background:rgba(52,224,196,.12);color:var(--cyan)}
-  .pill.approved{background:rgba(95,214,138,.12);color:var(--green)}
-  .pill.rejected{background:rgba(239,107,107,.12);color:var(--red)}
-  .pill.pending_review{background:rgba(245,177,76,.12);color:var(--amber)}
-  .full{grid-column:1/-1}
-  .muted{color:var(--muted)} .r{text-align:right}
-  .empty{color:var(--faint);font-size:13px;padding:24px;text-align:center}
+  .hero{display:grid;grid-template-columns:minmax(260px,320px) 1fr;gap:16px;margin-bottom:20px}
+  @media(max-width:840px){.hero{grid-template-columns:1fr}}
+  .gauge-panel{background:linear-gradient(160deg,var(--ink-2),var(--panel));
+    border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px}
+  .approval-bar{background:var(--line);border-radius:4px;height:8px;overflow:hidden;margin:4px 0}
+  .approval-fill{height:100%;background:var(--cyan);border-radius:4px;transition:width .4s}
+  .pipeline-status{display:flex;align-items:center;gap:8px;font-size:13px}
+  .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .status-dot.live{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2.4s infinite}
+  .status-dot.idle{background:var(--amber)}
+  .status-dot.error{background:var(--red)}
+  .recent-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .recent-row:last-child{border-bottom:none}
+  .topic-tag{font-size:11px;color:var(--faint)}
 </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <span class="dot"></span>
-      <h1>Signal</h1>
-      <span class="sub">psychology pipeline · performance</span>
-    </div>
-    <div>
-      <div class="updated mono" id="updated">—</div>
-      <div class="src" id="src"></div>
-    </div>
-  </header>
+<nav>
+  <a class="nav-brand" href="/">Psyche <span>Mission Control</span></a>
+  <a class="tab active" href="/">Overview</a>
+  <a class="tab" href="/analytics">Analytics</a>
+  <a class="tab" href="/agents">Agents</a>
+  <a class="tab" href="/billing">Billing</a>
+  <span class="nav-status" id="navUpdated"></span>
+  <div class="nav-dot"></div>
+</nav>
+<div class="page">
 
-  <nav class="tabs">
-    <a class="tab active" href="dashboard.html">Performance</a>
-    <a class="tab" href="billing.html">Billing</a>
-  </nav>
+  <!-- Hero: gauge + KPIs -->
+  <div class="hero">
+    <div class="gauge-panel">
+      <div>
+        <div class="gauge-label">Cost / Approved Video</div>
+        <div class="gauge-big mono">$<span id="cpa">—</span></div>
+        <div class="gauge-sub">target: &lt;$3.00 · avg all: $<span id="cpg">—</span></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:var(--muted)">Approval rate</span>
+          <span class="mono" id="approvalNote">—</span>
+        </div>
+        <div class="approval-bar"><div class="approval-fill" id="approvalMeter" style="width:0"></div></div>
+        <div style="font-size:11px;color:var(--faint);margin-top:4px"><span id="approvedCount">—</span> approved of <span id="totalCount">—</span> generated</div>
+      </div>
+      <div>
+        <div class="pipeline-status">
+          <div class="status-dot idle" id="statusDot"></div>
+          <span id="statusText" style="color:var(--muted)">idle</span>
+        </div>
+        <div style="font-size:11px;color:var(--faint);margin-top:4px" id="lastRunNote"></div>
+      </div>
+    </div>
+    <div class="grid g2" style="align-content:start">
+      <div id="kpis" class="grid g2" style="grid-column:1/-1"></div>
+    </div>
+  </div>
 
-  <!-- signature gauge + supporting kpis -->
-  <section class="top">
-    <div class="gauge">
-      <div class="label">Cost per approved video</div>
-      <div class="big mono"><span class="cur">$</span><span id="cpa">—</span></div>
-      <div class="vs">vs <b class="mono" id="cpg">$—</b> per video generated —
-        the gap is what you spend on rejects.</div>
-      <div class="meter"><i id="approvalMeter" style="width:0%"></i></div>
-      <div class="note"><span class="mono" id="approvalNote">—</span> of generated
-        videos clear review.</div>
+  <!-- Cost trend -->
+  <div class="section">
+    <div class="section-title">Daily Spend</div>
+    <div class="panel">
+      <canvas id="costChart" height="120" style="width:100%"></canvas>
     </div>
-    <div class="kpis" id="kpis"></div>
-  </section>
+  </div>
 
-  <section class="grid">
-    <div class="card">
-      <h2>Daily generation cost · last 14 days</h2>
-      <svg id="costChart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+  <!-- Two-column: top videos + topic leaderboard -->
+  <div class="grid g2">
+    <div class="section" style="margin-bottom:0">
+      <div class="section-title">Top Videos by Views</div>
+      <div class="panel"><div class="bars" id="topVideos"></div></div>
     </div>
-    <div class="card">
-      <h2>Topics by avg views</h2>
-      <div class="bars" id="topicBars"></div>
+    <div class="section" style="margin-bottom:0">
+      <div class="section-title">Topic Leaderboard</div>
+      <div class="panel"><div class="bars" id="topicBars"></div></div>
     </div>
-  </section>
+  </div>
 
-  <section class="grid">
-    <div class="card">
-      <h2>Top performers</h2>
-      <div class="bars" id="topVideos"></div>
-    </div>
-    <div class="card">
-      <h2>Engagement snapshot</h2>
-      <div class="kpis" id="engKpis" style="grid-template-columns:1fr 1fr"></div>
-    </div>
-  </section>
+  <!-- Recent activity -->
+  <div class="section" style="margin-top:28px">
+    <div class="section-title">Recent Activity</div>
+    <div class="panel"><div id="recentList"></div></div>
+  </div>
 
-  <section class="card full">
-    <h2>Recent videos</h2>
-    <div style="overflow-x:auto">
-      <table id="recentTable">
-        <thead><tr>
-          <th>Topic</th><th>Status</th><th class="r">Cost</th>
-          <th class="r">Rating</th><th class="r">Views</th><th>Generated</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+  <div class="data-footer">source: <span id="src">—</span></div>
+</div>
 
 <script src="config.js"></script>
 <script>
-// ---- Sample data: used only if dashboard_data.json can't be fetched ----
-const SAMPLE = {
+const SAMPLE={
   updated:new Date().toISOString().slice(0,19),
+  pipeline_status:"idle",last_run:null,
   kpis:{videos_total:35,videos_approved:25,videos_posted:25,approval_rate_pct:71.4,
     total_cost_usd:53.65,cost_per_approved_usd:2.15,total_views:307300,
-    avg_engagement_pct:11.32,total_follows:1223},
+    avg_engagement_pct:11.32,total_follows:1223,total_revenue_usd:null},
   cost_trend:[["06-08",4.1],["06-09",3.6],["06-10",5.2],["06-11",4.4],["06-12",3.1],
     ["06-13",4.8],["06-14",3.9],["06-15",5.5],["06-16",2.9],["06-17",4.2],
-    ["06-18",3.7],["06-19",4.9],["06-20",3.3],["06-21",4.0]]
-    .map(([date,cost])=>({date,cost})),
+    ["06-18",3.7],["06-19",4.9],["06-20",3.3],["06-21",4.0]].map(([date,cost])=>({date,cost})),
   top_videos:[
-    {topic:"Loss Aversion",views:51000,engagement:13.2,url:""},
-    {topic:"The Spotlight Effect",views:22000,engagement:10.8,url:""},
-    {topic:"Dunning-Kruger",views:9000,engagement:9.4,url:""},
-    {topic:"Cognitive Dissonance",views:4200,engagement:8.1,url:""},
-    {topic:"The Halo Effect",views:1500,engagement:6.9,url:""}],
+    {topic:"Loss Aversion",views:51000,engagement:13.2,url:"",approved:true},
+    {topic:"The Spotlight Effect",views:22000,engagement:10.8,url:"",approved:true},
+    {topic:"Dunning-Kruger",views:9000,engagement:9.4,url:"",approved:true},
+    {topic:"Cognitive Dissonance",views:4200,engagement:8.1,url:"",approved:true},
+    {topic:"The Halo Effect",views:1500,engagement:6.9,url:"",approved:true}],
   topic_leaderboard:[
-    {topic:"Loss Aversion",avg_views:28500,count:3},
-    {topic:"The Spotlight Effect",avg_views:16200,count:2},
-    {topic:"Dunning-Kruger",avg_views:7400,count:4},
-    {topic:"Cognitive Dissonance",avg_views:5100,count:3},
-    {topic:"The Halo Effect",avg_views:2300,count:2}],
-  recent:[]
+    {topic:"Loss Aversion",avg_views:28500,count:3,win_rate:100},
+    {topic:"The Spotlight Effect",avg_views:16200,count:2,win_rate:100},
+    {topic:"Dunning-Kruger",avg_views:7400,count:4,win_rate:75},
+    {topic:"Cognitive Dissonance",avg_views:5100,count:3,win_rate:67},
+    {topic:"The Halo Effect",avg_views:2300,count:2,win_rate:50}],
+  recent:[
+    {ts:"2026-06-21T14:22:00",event:"approved",topic:"Loss Aversion",note:"h5 v4 s5 p4"},
+    {ts:"2026-06-21T12:05:00",event:"generated",topic:"The Spotlight Effect",note:"$2.23"},
+    {ts:"2026-06-21T10:30:00",event:"rejected",topic:"Anchoring Bias",note:"visuals weak"},
+    {ts:"2026-06-20T18:00:00",event:"generated",topic:"Dunning-Kruger",note:"$2.18"},
+  ]
 };
 
-function fmt(n){return n==null?"—":n.toLocaleString()}
+function fmt(n){return n==null?"—":Number(n).toLocaleString()}
 function money(n){return n==null?"$—":"$"+Number(n).toFixed(2)}
 
 async function load(){
-  let data, live=false;
+  let data,live=false;
   try{
-    const url = window.__DATA_URL__ || "dashboard_data.json";
-    const res = await fetch(url,{cache:"no-store"});
-    if(res.ok){ data = await res.json(); live=true; }
-  }catch(e){/* fall through to sample */}
-  if(!data) data = SAMPLE;
-  render(data, live);
+    const url=window.__DATA_URL__||"dashboard_data.json";
+    const r=await fetch(url,{cache:"no-store"});
+    if(r.ok){data=await r.json();live=true;}
+  }catch(e){}
+  if(!data)data=SAMPLE;
+  render(data,live);
 }
 
-function render(d, live){
-  const k = d.kpis;
-  document.getElementById("updated").textContent = "updated " + (d.updated||"").replace("T"," ");
-  document.getElementById("src").textContent = live ? "live data" : "sample data — point at your dashboard_data.json";
+function render(d,live){
+  document.getElementById("src").textContent=live?"live · "+d.updated?.replace("T"," "):"sample data";
+  document.getElementById("navUpdated").textContent=live?"live":"demo";
 
-  // gauge
-  const cpg = k.total_cost_usd && k.videos_total ? k.total_cost_usd/k.videos_total : null;
-  document.getElementById("cpa").textContent = k.cost_per_approved_usd!=null ? Number(k.cost_per_approved_usd).toFixed(2) : "—";
-  document.getElementById("cpg").textContent = money(cpg);
-  document.getElementById("approvalMeter").style.width = (k.approval_rate_pct||0)+"%";
-  document.getElementById("approvalNote").textContent = (k.approval_rate_pct||0)+"%";
+  const k=d.kpis||{};
+  const cpv=k.total_cost_usd&&k.videos_total?k.total_cost_usd/k.videos_total:null;
+  document.getElementById("cpa").textContent=k.cost_per_approved_usd!=null?Number(k.cost_per_approved_usd).toFixed(2):"—";
+  document.getElementById("cpg").textContent=cpv!=null?cpv.toFixed(2):"—";
+  document.getElementById("approvalMeter").style.width=(k.approval_rate_pct||0)+"%";
+  document.getElementById("approvalNote").textContent=(k.approval_rate_pct||0).toFixed(1)+"%";
+  document.getElementById("approvedCount").textContent=fmt(k.videos_approved);
+  document.getElementById("totalCount").textContent=fmt(k.videos_total);
 
-  // kpi cards
-  const cards = [
+  // Status
+  const st=d.pipeline_status||"idle";
+  const dot=document.getElementById("statusDot");
+  dot.className="status-dot "+(st==="running"?"live":st==="error"?"error":"idle");
+  document.getElementById("statusText").textContent=st;
+  if(d.last_run)document.getElementById("lastRunNote").textContent="last run "+d.last_run.replace("T"," ");
+
+  // KPI cards
+  const cards=[
     {k:"Videos made",v:fmt(k.videos_total)},
-    {k:"Approved",v:fmt(k.videos_approved),d:(k.approval_rate_pct||0)+"% rate"},
+    {k:"Approved",v:fmt(k.videos_approved),d:(k.approval_rate_pct||0).toFixed(1)+"% rate"},
     {k:"Total spend",v:money(k.total_cost_usd)},
     {k:"Total views",v:fmt(k.total_views)},
-    {k:"Avg engagement",v:(k.avg_engagement_pct||0)+"%",cls:k.avg_engagement_pct>=8?"good":""},
+    {k:"Avg engagement",v:k.avg_engagement_pct!=null?(k.avg_engagement_pct.toFixed(1)+"%"):"—",
+      cls:k.avg_engagement_pct>=8?"delta-up":k.avg_engagement_pct>0?"delta-dn":""},
     {k:"New follows",v:fmt(k.total_follows)},
   ];
-  document.getElementById("kpis").innerHTML = cards.map(c=>
-    `<div class="kpi ${c.cls||''}"><div class="k">${c.k}</div>
-     <div class="v mono">${c.v}</div>${c.d?`<div class="d">${c.d}</div>`:""}</div>`).join("");
+  document.getElementById("kpis").innerHTML=cards.map(c=>
+    `<div class="kpi"><div class="k">${c.k}</div>
+     <div class="v mono ${c.cls||''}">${c.v}</div>${c.d?`<div class="d">${c.d}</div>`:""}</div>`).join("");
 
-  // cost line chart
+  // Cost chart
   drawLine(d.cost_trend||[]);
 
-  // topic bars
-  const topics = d.topic_leaderboard||[];
-  const maxT = Math.max(1,...topics.map(t=>t.avg_views));
-  document.getElementById("topicBars").innerHTML = topics.length? topics.map(t=>
-    `<div class="bar"><span class="name" title="${t.topic}">${t.topic}</span>
-     <span class="track"><i style="width:${t.avg_views/maxT*100}%"></i></span>
-     <span class="num mono">${fmt(t.avg_views)}</span></div>`).join("")
-    : `<div class="empty">No view data yet. Log TikTok stats to populate this.</div>`;
+  // Top videos
+  const tv=d.top_videos||[];
+  const maxV=Math.max(1,...tv.map(v=>v.views||0));
+  document.getElementById("topVideos").innerHTML=tv.length?tv.map(v=>
+    `<div class="bar">
+      <span class="name" title="${v.topic}">${v.topic}</span>
+      <span class="track"><i style="width:${(v.views||0)/maxV*100}%"></i></span>
+      <span class="num mono">${fmt(v.views)}</span>
+     </div>`).join(""):`<div class="empty">No posted videos yet</div>`;
 
-  // top videos
-  const tv = d.top_videos||[];
-  const maxV = Math.max(1,...tv.map(v=>v.views));
-  document.getElementById("topVideos").innerHTML = tv.length? tv.map(v=>
-    `<div class="bar"><span class="name" title="${v.topic}">${v.topic}</span>
-     <span class="track"><i style="width:${v.views/maxV*100}%"></i></span>
-     <span class="num mono">${fmt(v.views)}</span></div>`).join("")
-    : `<div class="empty">No posted videos with stats yet.</div>`;
+  // Topic leaderboard
+  const tl=d.topic_leaderboard||[];
+  const maxT=Math.max(1,...tl.map(t=>t.avg_views||0));
+  document.getElementById("topicBars").innerHTML=tl.length?tl.map(t=>
+    `<div class="bar">
+      <span class="name" title="${t.topic}">${t.topic}</span>
+      <span class="track"><i style="width:${(t.avg_views||0)/maxT*100}%"></i></span>
+      <span class="num mono">${fmt(t.avg_views)}</span>
+     </div>`).join(""):`<div class="empty">No performance data yet</div>`;
 
-  // engagement snapshot
-  document.getElementById("engKpis").innerHTML = [
-    {k:"Avg engagement",v:(k.avg_engagement_pct||0)+"%"},
-    {k:"Views / approved",v:fmt(k.videos_approved? Math.round((k.total_views||0)/k.videos_approved):0)},
-    {k:"Follows / 1k views",v:(k.total_views? ((k.total_follows||0)/k.total_views*1000).toFixed(1):"0")},
-    {k:"Posted live",v:fmt(k.videos_posted)},
-  ].map(c=>`<div class="kpi"><div class="k">${c.k}</div>
-     <div class="v mono">${c.v}</div></div>`).join("");
-
-  // recent table
-  const rows = (d.recent||[]).map(r=>`<tr>
-    <td>${r.topic||"—"}</td>
-    <td><span class="pill ${r.status||'pending_review'}">${(r.status||'').replace('_',' ')}</span></td>
-    <td class="r mono">${money(r.cost)}</td>
-    <td class="r mono">${r.rating?('★'.repeat(r.rating)):'—'}</td>
-    <td class="r mono">${r.views!=null?fmt(r.views):'—'}</td>
-    <td class="muted mono">${(r.generated_at||'').slice(0,10)}</td>
-  </tr>`).join("");
-  document.querySelector("#recentTable tbody").innerHTML = rows ||
-    `<tr><td colspan="6" class="empty">No videos recorded yet.</td></tr>`;
+  // Recent activity
+  const events={approved:"✅",rejected:"❌",generated:"🎬",posted:"📤",error:"⚠️"};
+  const recent=d.recent||[];
+  document.getElementById("recentList").innerHTML=recent.length?recent.map(r=>
+    `<div class="recent-row">
+      <span>${events[r.event]||"·"} <strong>${r.topic}</strong> <span class="topic-tag">${r.event}</span></span>
+      <span style="color:var(--muted);font-size:12px">${r.note||""}</span>
+      <span style="color:var(--faint);font-size:11px">${(r.ts||"").replace("T"," ").slice(0,16)}</span>
+     </div>`).join(""):`<div class="empty">No activity yet — run the pipeline</div>`;
 }
 
 function drawLine(trend){
-  const svg = document.getElementById("costChart");
-  const W=600,H=200,pad=24;
-  if(!trend.length){svg.innerHTML=`<text x="${W/2}" y="${H/2}" fill="#4d6376" text-anchor="middle" font-size="13">No cost data yet</text>`;return;}
-  const xs = trend.map((_,i)=> pad + i*(W-2*pad)/Math.max(1,trend.length-1));
-  const max = Math.max(...trend.map(t=>t.cost))*1.2 || 1;
-  const y = v => H-pad - (v/max)*(H-2*pad);
-  const pts = trend.map((t,i)=>`${xs[i]},${y(t.cost)}`).join(" ");
-  const area = `${pad},${H-pad} ${pts} ${xs[xs.length-1]},${H-pad}`;
-  let g="";
-  for(let i=0;i<=3;i++){const yy=pad+i*(H-2*pad)/3;
-    g+=`<line x1="${pad}" y1="${yy}" x2="${W-pad}" y2="${yy}" stroke="#1a2630" stroke-width="1"/>`;}
-  svg.innerHTML = `
-    <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#34e0c4" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="#34e0c4" stop-opacity="0"/>
-    </linearGradient></defs>
-    ${g}
-    <polygon points="${area}" fill="url(#ag)"/>
-    <polyline points="${pts}" fill="none" stroke="#34e0c4" stroke-width="2"
-      stroke-linejoin="round" stroke-linecap="round"/>
-    ${trend.map((t,i)=>`<circle cx="${xs[i]}" cy="${y(t.cost)}" r="2.5" fill="#34e0c4"/>`).join("")}
-    <text x="${pad}" y="14" fill="#4d6376" font-size="10" font-family="monospace">$${max.toFixed(0)}</text>
-  `;
+  const canvas=document.getElementById("costChart");
+  const ctx=canvas.getContext("2d");
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.parentElement.clientWidth;
+  const H=120;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+"px";canvas.style.height=H+"px";
+  ctx.scale(dpr,dpr);
+  if(!trend.length){ctx.fillStyle="#4d6376";ctx.font="13px Inter";ctx.fillText("No spend data yet",W/2-60,H/2);return;}
+  const vals=trend.map(t=>t.cost||0);
+  const maxV=Math.max(...vals,0.01);
+  const pad={t:10,r:8,b:24,l:40};
+  const uw=(W-pad.l-pad.r)/(vals.length-1||1);
+  const uh=(H-pad.t-pad.b)/maxV;
+  // grid lines
+  ctx.strokeStyle="#243240";ctx.lineWidth=1;
+  [0,.5,1].forEach(f=>{
+    const y=H-pad.b-f*maxV*uh;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle="#4d6376";ctx.font="10px Inter";
+    ctx.fillText("$"+(f*maxV).toFixed(1),2,y+4);
+  });
+  // area
+  const pts=vals.map((v,i)=>({x:pad.l+i*uw,y:H-pad.b-v*uh}));
+  ctx.beginPath();ctx.moveTo(pts[0].x,H-pad.b);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H-pad.b);ctx.closePath();
+  ctx.fillStyle="rgba(52,224,196,.08)";ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle="#34e0c4";ctx.lineWidth=2;ctx.stroke();
+  // dots
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle="#34e0c4";ctx.fill();});
+  // x labels (every ~4)
+  const step=Math.max(1,Math.round(trend.length/6));
+  ctx.fillStyle="#4d6376";ctx.font="10px Inter";ctx.textAlign="center";
+  trend.forEach((t,i)=>{if(i%step===0)ctx.fillText(t.date||"",pad.l+i*uw,H-6);});
 }
 
 load();
+window.addEventListener("resize",()=>load());
 </script>
 </body>
 </html>
