@@ -17,6 +17,7 @@ const tabs = [
 export default function Navigation() {
   const pathname = usePathname();
   const [time, setTime] = useState<string>('—');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -27,6 +28,11 @@ export default function Navigation() {
     const interval = setInterval(updateTime, 10000);
     return () => clearInterval(interval);
   }, []);
+  
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    window.location.href = window.location.href;
+  };
 
   return (
     <nav>
@@ -51,10 +57,42 @@ export default function Navigation() {
           })}
         </div>
 
-        <div className="nav-status">
-          <span title="Eastern Time">{time} ET</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button
+            onClick={handleRefresh}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: '16px',
+              padding: '6px 8px',
+              borderRadius: '4px',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: isRefreshing ? 0.5 : 1,
+              transform: isRefreshing ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-secondary)';
+              e.currentTarget.style.color = 'var(--accent-cyan)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.color = 'var(--text-muted)';
+            }}
+            title="Refresh page"
+            disabled={isRefreshing}
+          >
+            🔄
+          </button>
+          <div className="nav-status">
+            <span title="Eastern Time">{time} ET</span>
+          </div>
+          <div className="nav-dot"></div>
         </div>
-        <div className="nav-dot"></div>
       </div>
     </nav>
   );
