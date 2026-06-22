@@ -168,17 +168,17 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Today's Activity */}
-      <div className="grid g3 mb-2xl">
+      {/* Today's Activity - Coming Soon */}
+      {/* <div className="grid g3 mb-2xl">
         <div className="stat-box">
           <div className="stat-label">🎬 Videos Today</div>
-          <div className="stat-value">{videosToday}</div>
+          <div className="stat-value">—</div>
           <div className="stat-note">generated & approved</div>
         </div>
 
         <div className="stat-box">
           <div className="stat-label">💸 Today's Cost</div>
-          <div className="stat-value">${costToday.toFixed(2)}</div>
+          <div className="stat-value">—</div>
           <div className="stat-note">of $0.33 daily budget</div>
         </div>
 
