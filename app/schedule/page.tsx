@@ -24,15 +24,18 @@ function getRunStatus(hour: number): 'past' | 'next' | 'future' {
 }
 
 export default function SchedulePage() {
-  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [, setRenderTrigger] = useState(0);
   
   useEffect(() => {
-    setCurrentTime(new Date());
-    const interval = setInterval(() => setCurrentTime(new Date()), 60000);
+    // Force re-render every 10 seconds to update past/next/future status
+    const interval = setInterval(() => {
+      setRenderTrigger(prev => prev + 1);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
   
-  if (!currentTime) return null;
+  const now = new Date();
+  
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '32px', marginBottom: '32px' }}>
       <div>
