@@ -3,12 +3,5 @@
   "devCommand": "next dev",
   "installCommand": "npm ci",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "serverlessFunctionRegion": "sfo1",
-  "functions": {
-    "api/**": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  }
+  "outputDirectory": ".next"
 }
