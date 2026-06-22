@@ -21,7 +21,8 @@ export default function Home() {
   };
 
   const budgetStatus = getBudgetStatus();
-  const remaining = (monthlyBudget - monthlySpend).toFixed(2);
+  const remainingNum = monthlyBudget - monthlySpend;
+  const remaining = remainingNum.toFixed(2);
 
   return (
     <div>
@@ -39,7 +40,7 @@ export default function Home() {
         
         <div className="stat-box" style={{ borderLeft: '3px solid #10b981' }}>
           <div className="stat-label">💰 Budget Remaining</div>
-          <div className="stat-value" style={{ color: remaining > 3 ? '#10b981' : '#ef4444' }}>
+          <div className="stat-value" style={{ color: remainingNum > 3 ? '#10b981' : '#ef4444' }}>
             ${remaining}
           </div>
           <div className="stat-note">
@@ -79,7 +80,7 @@ export default function Home() {
             <div style={{ fontSize: '28px', fontWeight: '700', color: budgetStatus.color }}>
               {budgetStatus.emoji} {monthlyPct.toFixed(1)}%
             </div>
-            <div style={{ fontSize: '12px', color: budgetStatus.color', marginTop: '4px' }}>
+            <div style={{ fontSize: '12px', color: budgetStatus.color, marginTop: '4px' }}>
               {budgetStatus.label}
             </div>
           </div>
