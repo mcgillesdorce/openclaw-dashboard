@@ -8,9 +8,9 @@ import { formatTimeET } from '../utils/dateFormatter';
 const tabs = [
   { label: 'Overview', href: '/' },
   { label: 'Schedule', href: '/schedule' },
-  { label: 'Analytics', href: '/analytics' },
-  { label: 'Agents', href: '/agents' },
+  { label: 'Ecosystem', href: '/ecosystem' },
   { label: 'Approvals', href: '/approvals' },
+  { label: 'Analytics', href: '/analytics' },
   { label: 'Billing', href: '/billing' },
   { label: 'Tracker', href: '/tracker' },
 ];
@@ -59,17 +59,17 @@ export default function Navigation() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Approvals indicator */}
-          <div style={{ fontSize: '12px', fontWeight: '600', color: '#f59e0b', padding: '4px 8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '4px' }}>
-            ⏳ Approvals
+          {/* Pending Approvals indicator */}
+          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--priority-high)', padding: '6px 10px', background: 'rgba(255, 51, 51, 0.15)', borderRadius: '4px', border: '1px solid var(--priority-high)33', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            ⏳ 8 PENDING
           </div>
           
           <button
             onClick={handleRefresh}
             style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
+              background: 'rgba(0, 255, 221, 0.05)',
+              border: '1px solid var(--border-neon)',
+              color: 'var(--accent-cyan)',
               cursor: 'pointer',
               fontSize: '16px',
               padding: '6px 8px',
@@ -82,12 +82,10 @@ export default function Navigation() {
               transform: isRefreshing ? 'rotate(180deg)' : 'rotate(0deg)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bg-secondary)';
-              e.currentTarget.style.color = 'var(--accent-cyan)';
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(0, 255, 221, 0.3)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'none';
-              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
             title="Refresh page"
             disabled={isRefreshing}

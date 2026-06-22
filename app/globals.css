@@ -10,30 +10,39 @@
 }
 
 :root {
-  /* Base Palette */
-  --bg-base: #0a0e1a;
-  --bg-secondary: #0f131f;
-  --bg-tertiary: #131829;
-  --bg-hover: #1a1f2e;
+  /* GOTHIC STEALTH METAL THEME */
+  /* Base Palette — Industrial blacks & grays */
+  --bg-base: #0a0a0f;
+  --bg-secondary: #0f0f1a;
+  --bg-tertiary: #151520;
+  --bg-hover: #1a1a28;
+  --bg-accent: #1a1a3a;  /* Subtle dark purple tint */
   
-  /* Text */
-  --text-primary: #e8eaed;
-  --text-secondary: #a8adb8;
-  --text-muted: #6f7684;
-  --text-dim: #505560;
+  /* Text — Sharp contrast */
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --text-muted: #606070;
+  --text-dim: #404050;
   
-  /* Accents */
-  --accent-cyan: #00d9ff;
-  --accent-blue: #6366f1;
-  --accent-purple: #a855f7;
-  --accent-amber: #f59e0b;
-  --accent-green: #10b981;
-  --accent-red: #ef4444;
+  /* Metal Accents — Neon vs industrial */
+  --accent-cyan: #00ffdd;      /* Bright neon cyan */
+  --accent-purple: #cc33ff;    /* Neon purple */
+  --accent-red: #ff3333;       /* Neon red */
+  --accent-gold: #ffaa00;      /* Metallic gold */
+  --accent-green: #00ff88;     /* Neon green */
+  --accent-blue: #0099ff;      /* Neon blue */
   
-  /* Borders */
-  --border-primary: #1e2335;
-  --border-secondary: #252d4a;
-  --border-light: #353d5c;
+  /* Priority Colors */
+  --priority-critical: #ff3333;  /* Neon red */
+  --priority-high: #ff9900;      /* Neon orange */
+  --priority-medium: #ffaa00;    /* Gold */
+  --priority-low: #00ffdd;       /* Cyan */
+  
+  /* Borders — Steel/industrial */
+  --border-primary: #1a1a2a;
+  --border-secondary: #252535;
+  --border-light: #353555;
+  --border-neon: rgba(0, 255, 221, 0.3);  /* Cyan glow */
   
   /* Transitions */
   --trans-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
