@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 interface BillingData {
+  updated?: string;
   current_period: string;
   month_total: number;
   month_budget: number;
@@ -28,22 +29,33 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
+        // Add cache-busting query params to force fresh data
+        const timestamp = new Date().getTime();
         const [billingRes, dashboardRes] = await Promise.all([
-          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/billing_data.json'),
-          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/dashboard_data.json')
+          fetch(`https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/billing_data.json?t=${timestamp}`, {
+            headers: { 'Cache-Control': 'no-cache' }
+          }),
+          fetch(`https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/dashboard_data.json?t=${timestamp}`, {
+            headers: { 'Cache-Control': 'no-cache' }
+          })
         ]);
 
         if (!billingRes.ok || !dashboardRes.ok) {
-          throw new Error('Failed to fetch data');
+          console.error('Fetch failed:', billingRes.status, dashboardRes.status);
+          throw new Error(`Fetch failed: ${billingRes.status} ${dashboardRes.status}`);
         }
 
         const billingData = await billingRes.json();
         const dashboardData = await dashboardRes.json();
 
+        console.log('✅ Real data loaded:', { billingData, dashboardData });
         setBilling(billingData);
         setDashboard(dashboardData);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        const errMsg = err instanceof Error ? err.message : 'Unknown error';
+        console.error('❌ Fetch error, using fallback:', errMsg);
+        setError(errMsg);
         // Fallback to placeholder data on error
         setBilling({
           current_period: '2026-06',
@@ -97,6 +109,18 @@ export default function Home() {
 
   return (
     <div>
+      {/* Debug Info */}
+      {error && (
+        <div style={{ background: '#fecaca', border: '1px solid #ef4444', color: '#991b1b', padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '12px' }}>
+          ⚠️ Fetch error: {error} (using fallback data)
+        </div>
+      )}
+      {!error && (billing?.month_total ?? 0) > 10 && (
+        <div style={{ background: '#dcfce7', border: '1px solid #10b981', color: '#166534', padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '12px' }}>
+          ✅ Real data loaded from GitHub (last: {billing?.updated})
+        </div>
+      )}
+      
       {/* Key Metrics - Cost-Focused */}
       <div className="grid g4 mb-2xl">
         <div className="stat-box" style={{ borderLeft: `3px solid ${budgetStatus.color}` }}>
