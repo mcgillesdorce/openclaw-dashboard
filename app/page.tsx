@@ -29,8 +29,8 @@ export default function Home() {
     async function fetchData() {
       try {
         const [billingRes, dashboardRes] = await Promise.all([
-          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/data/billing_data.json'),
-          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/data/dashboard_data.json')
+          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/billing_data.json'),
+          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/dashboard_data.json')
         ]);
 
         if (!billingRes.ok || !dashboardRes.ok) {
