@@ -1,5 +1,7 @@
 'use client';
 
+import { ETClock } from '../components/ETClock';
+
 export default function Billing() {
   // Placeholder data - will be synced from GitHub data branch
   const monthlyBudget = 10.0;
@@ -43,6 +45,11 @@ export default function Billing() {
 
   return (
     <div>
+      {/* Live Clock */}
+      <div style={{ marginBottom: '24px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'right' }}>
+        Current time: <ETClock />
+      </div>
+
       {/* Budget Overview */}
       <div style={{ marginBottom: '32px' }}>
         <div className="section-title" style={{ marginBottom: '24px' }}>Budget Status</div>

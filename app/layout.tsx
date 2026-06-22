@@ -5,7 +5,7 @@ import Navigation from '@/app/components/Navigation';
 
 export const metadata: Metadata = {
   title: 'Psyche — Mission Control',
-  description: 'Real-time business-critical pipeline dashboard',
+  description: 'Real-time business-critical pipeline dashboard (Eastern Time)',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
   icons: {
     icon: [{ url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧠</text></svg>' }],

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { formatTimeET } from '../utils/dateFormatter';
 
 const tabs = [
   { label: 'Overview', href: '/' },
@@ -19,8 +20,8 @@ export default function Navigation() {
 
   useEffect(() => {
     const updateTime = () => {
-      const now = new Date();
-      setTime(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+      const formatted = formatTimeET(new Date());
+      setTime(formatted);
     };
     updateTime();
     const interval = setInterval(updateTime, 10000);
@@ -50,7 +51,9 @@ export default function Navigation() {
           })}
         </div>
 
-        <div className="nav-status">updated: {time}</div>
+        <div className="nav-status">
+          <span title="Eastern Time">{time} ET</span>
+        </div>
         <div className="nav-dot"></div>
       </div>
     </nav>

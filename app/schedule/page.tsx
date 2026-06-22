@@ -1,5 +1,7 @@
 'use client';
 
+import { ETClock } from '../components/ETClock';
+
 const STATIC_SCHEDULE = [
   { time: '08:00', ampm: 'AM', agent: 'Finch', icon: '💰', task: 'Morning cost analysis' },
   { time: '10:00', ampm: 'AM', agent: 'Scout', icon: '📖', task: 'Topic research & trends' },
@@ -15,7 +17,10 @@ export default function SchedulePage() {
     <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '32px', marginBottom: '32px' }}>
       <div>
         <div className="panel" style={{ position: 'sticky', top: '80px' }}>
-          <div className="section-title" style={{ marginBottom: '20px' }}>📅 Daily Schedule</div>
+          <div className="section-title" style={{ marginBottom: '20px' }}>📅 Daily Schedule (ET)</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+            Current time: <ETClock />
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {STATIC_SCHEDULE.map((item, i) => (
               <div key={i} style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '12px', padding: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: '8px' }}>
