@@ -29,28 +29,24 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Add cache-busting query params to force fresh data
-        const timestamp = new Date().getTime();
-        const [billingRes, dashboardRes] = await Promise.all([
-          fetch(`https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/billing_data.json?t=${timestamp}`, {
-            headers: { 'Cache-Control': 'no-cache' }
-          }),
-          fetch(`https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/dashboard_data.json?t=${timestamp}`, {
-            headers: { 'Cache-Control': 'no-cache' }
-          })
-        ]);
+        // Fetch from our own API endpoint (server-side fetches from GitHub)
+        const res = await fetch('/api/data', {
+          cache: 'no-store'
+        });
 
-        if (!billingRes.ok || !dashboardRes.ok) {
-          console.error('Fetch failed:', billingRes.status, dashboardRes.status);
-          throw new Error(`Fetch failed: ${billingRes.status} ${dashboardRes.status}`);
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
         }
 
-        const billingData = await billingRes.json();
-        const dashboardData = await dashboardRes.json();
+        const data = await res.json();
 
-        console.log('✅ Real data loaded:', { billingData, dashboardData });
-        setBilling(billingData);
-        setDashboard(dashboardData);
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        console.log('✅ Real data loaded:', { billing: data.billing, dashboard: data.dashboard });
+        setBilling(data.billing);
+        setDashboard(data.dashboard);
         setError(null);
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : 'Unknown error';
