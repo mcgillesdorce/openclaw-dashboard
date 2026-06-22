@@ -76,6 +76,60 @@
   
   .time-ago { font-size: 12px; color: var(--faint); }
   
+  .upcoming-tasks {
+    background: linear-gradient(160deg, var(--ink-2), var(--panel));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .upcoming-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  
+  .upcoming-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .upcoming-item {
+    display: grid;
+    grid-template-columns: 70px 90px 1fr;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--panel-darker, rgba(255,255,255,0.02));
+  }
+  
+  .upcoming-item:hover {
+    background: var(--ink-1);
+  }
+  
+  .upcoming-time {
+    font-family: 'Monaco', monospace;
+    font-weight: 500;
+    color: var(--cyan);
+  }
+  
+  .upcoming-agent {
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 12px;
+  }
+  
+  .upcoming-desc {
+    color: var(--faint);
+  }
+  
   @media (max-width: 1024px) {
     .event { grid-template-columns: 40px 70px 1fr 70px; }
     .event-agent { display: none; }
@@ -103,6 +157,11 @@
 
 <div class="page">
   <h1>Daily Schedule</h1>
+  
+  <div class="upcoming-tasks" id="upcomingTasks" style="display: none;">
+    <div class="upcoming-title">⏰ What's Next</div>
+    <div class="upcoming-list" id="upcomingList"></div>
+  </div>
   
   <div class="stats-row">
     <div class="stat">
@@ -158,6 +217,22 @@ async function loadSchedule() {
 
 function renderSchedule(data) {
   const timeline = document.getElementById('timeline');
+  
+  // Render upcoming tasks
+  if (data.upcoming && data.upcoming.length > 0) {
+    const upcomingContainer = document.getElementById('upcomingTasks');
+    const upcomingList = document.getElementById('upcomingList');
+    upcomingList.innerHTML = data.upcoming.map(task => `
+      <div class="upcoming-item">
+        <div class="upcoming-time">${task.time}</div>
+        <div class="upcoming-agent">${task.agent}</div>
+        <div class="upcoming-desc">${task.description}</div>
+      </div>
+    `).join('');
+    upcomingContainer.style.display = 'block';
+  } else {
+    document.getElementById('upcomingTasks').style.display = 'none';
+  }
   
   if (!data.events || data.events.length === 0) {
     showEmpty();
