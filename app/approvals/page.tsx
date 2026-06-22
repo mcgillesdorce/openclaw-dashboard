@@ -15,41 +15,33 @@ interface Recommendation {
   impact: string;
   tags: string[];
   action_items?: Array<{ title: string; description: string; estimated_time_minutes: number }>;
-  historical_context?: { similar_past_recommendations: string[]; outcome_if_approved: string; outcome_if_ignored: string; frequency: string };
+  historical_context?: { outcome_if_approved: string; outcome_if_ignored: string; frequency: string };
   trend_analysis?: { metric: string; current_value: number; previous_value: number; trend: string; percent_change: number; direction_emoji: string };
   evidence?: Array<{ metric: string; value: string; timestamp: string; source: string }>;
   data: Record<string, any>;
   timestamp: string;
   status: string;
   approved_by?: string;
-  approval_reason?: string;
 }
 
 const agentColors: Record<string, string> = {
-  'Finch': '#10b981',
-  'Scout': '#3b82f6',
-  'Pulse': '#f59e0b',
-  'Psyche': '#a855f7'
+  'Finch': '#8833ff',
+  'Scout': '#003366',
+  'Pulse': '#884400',
+  'Psyche': '#cc0033'
 };
 
-const priorityConfig: Record<string, { color: string; emoji: string; label: string }> = {
-  critical: { color: 'var(--priority-critical)', emoji: '🚨', label: 'CRITICAL' },
-  high: { color: 'var(--priority-high)', emoji: '⚠️', label: 'HIGH' },
-  medium: { color: 'var(--priority-medium)', emoji: '⏱️', label: 'MEDIUM' },
-  low: { color: 'var(--priority-low)', emoji: '📌', label: 'LOW' }
-};
-
-export default function ApprovalsEnhancedPage() {
+export default function ApprovalsPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAgent, setFilterAgent] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('pending');
+  const [filterStatus, setFilterStatus] = useState<string>('pending_approval');
 
   useEffect(() => {
     fetchRecommendations();
-    const interval = setInterval(fetchRecommendations, 30000);
+    const interval = setInterval(fetchRecommendations, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,7 +50,10 @@ export default function ApprovalsEnhancedPage() {
       const res = await fetch('/api/recommendations');
       if (res.ok) {
         const data = await res.json();
+        console.log('Fetched recommendations:', data);
         setRecommendations(data);
+      } else {
+        console.error('API returned:', res.status);
       }
     } catch (err) {
       console.error('Failed to fetch:', err);
@@ -69,27 +64,38 @@ export default function ApprovalsEnhancedPage() {
 
   async function handleApprove(id: string) {
     try {
-      await fetch('/api/recommendations/approve', {
+      const res = await fetch('/api/recommendations/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, reason: 'Approved via dashboard' })
       });
-      await fetchRecommendations();
+      if (res.ok) {
+        alert('✅ Approved!');
+        await fetchRecommendations();
+      }
     } catch (err) {
       console.error('Approval failed:', err);
+      alert('❌ Approval failed');
     }
   }
 
-  async function handleReject(id: string, reason: string) {
+  async function handleReject(id: string) {
+    const reason = prompt('Why are you rejecting this?');
+    if (!reason) return;
+    
     try {
-      await fetch('/api/recommendations/reject', {
+      const res = await fetch('/api/recommendations/reject', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, reason })
       });
-      await fetchRecommendations();
+      if (res.ok) {
+        alert('✅ Rejected!');
+        await fetchRecommendations();
+      }
     } catch (err) {
       console.error('Rejection failed:', err);
+      alert('❌ Rejection failed');
     }
   }
 
@@ -103,74 +109,75 @@ export default function ApprovalsEnhancedPage() {
   const stats = {
     total: recommendations.length,
     pending: recommendations.filter(r => r.status === 'pending_approval').length,
-    critical: recommendations.filter(r => r.priority === 'critical' && r.status === 'pending_approval').length
+    critical: recommendations.filter(r => r.priority === 'high' && r.status === 'pending_approval').length
+  };
+
+  const priorityConfig: Record<string, { emoji: string; color: string }> = {
+    high: { emoji: '🚨', color: '#cc0033' },
+    medium: { emoji: '⚠️', color: '#8833ff' },
+    low: { emoji: '📌', color: '#884400' }
   };
 
   return (
-    <div>
-      {/* Header with Statistics */}
-      <div style={{ marginBottom: '32px', padding: '24px', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-accent) 100%)', border: '1px solid var(--border-neon)', borderRadius: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+    <div style={{ minHeight: '100vh', padding: '24px' }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: '32px',
+        padding: '24px',
+        background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-accent) 100%)',
+        border: '1px solid rgba(136, 51, 255, 0.3)',
+        borderRadius: '8px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '20px' }}>
           <div>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              ⚖️ RECOMMENDATION GOVERNANCE
+            <div style={{ fontSize: '20px', fontWeight: '700', color: '#8833ff', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '6px' }}>
+              ⚖️ APPROVALS GOVERNANCE
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
-              Agent decisions awaiting human approval
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Review and approve agent recommendations one at a time
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
               <ETClock />
             </div>
           </div>
         </div>
 
-        {/* Statistics */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '12px' }}>
           <div style={{ padding: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', borderRadius: '6px' }}>
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>Total</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)' }}>{stats.total}</div>
+            <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Total</div>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: '#e0e0e0' }}>{stats.total}</div>
           </div>
-          <div style={{ padding: '12px', background: 'rgba(255, 51, 51, 0.1)', border: '1px solid var(--priority-critical)33', borderRadius: '6px' }}>
-            <div style={{ fontSize: '10px', color: 'var(--priority-critical)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>🚨 Critical</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--priority-critical)' }}>{stats.critical}</div>
+          <div style={{ padding: '12px', background: 'rgba(204, 0, 51, 0.1)', border: '1px solid rgba(204, 0, 51, 0.3)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '10px', color: '#cc0033', textTransform: 'uppercase', marginBottom: '4px', fontWeight: '600' }}>🚨 Pending</div>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: '#cc0033' }}>{stats.pending}</div>
           </div>
-          <div style={{ padding: '12px', background: 'rgba(255, 170, 0, 0.1)', border: '1px solid var(--priority-high)33', borderRadius: '6px' }}>
-            <div style={{ fontSize: '10px', color: 'var(--priority-high)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>⏳ Pending</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--priority-high)' }}>{stats.pending}</div>
+          <div style={{ padding: '12px', background: 'rgba(136, 51, 255, 0.1)', border: '1px solid rgba(136, 51, 255, 0.3)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '10px', color: '#8833ff', textTransform: 'uppercase', marginBottom: '4px', fontWeight: '600' }}>⚠️ Critical</div>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: '#8833ff' }}>{stats.critical}</div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+      <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
         <div>
-          <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>
-            Priority
-          </label>
-          <select
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            style={{ width: '100%', padding: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', borderRadius: '4px', fontFamily: 'inherit' }}
-          >
-            <option value="all">All Priorities</option>
-            <option value="critical">🚨 Critical</option>
-            <option value="high">⚠️ High</option>
-            <option value="medium">⏱️ Medium</option>
+          <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Priority</label>
+          <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}
+            style={{ width: '100%', padding: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', borderRadius: '4px', fontSize: '12px' }}>
+            <option value="all">All</option>
+            <option value="high">🚨 High</option>
+            <option value="medium">⚠️ Medium</option>
             <option value="low">📌 Low</option>
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>
-            Agent
-          </label>
-          <select
-            value={filterAgent}
-            onChange={(e) => setFilterAgent(e.target.value)}
-            style={{ width: '100%', padding: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', borderRadius: '4px', fontFamily: 'inherit' }}
-          >
-            <option value="all">All Agents</option>
+          <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Agent</label>
+          <select value={filterAgent} onChange={(e) => setFilterAgent(e.target.value)}
+            style={{ width: '100%', padding: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', borderRadius: '4px', fontSize: '12px' }}>
+            <option value="all">All</option>
             <option value="finch">💰 Finch</option>
             <option value="scout">📖 Scout</option>
             <option value="pulse">📊 Pulse</option>
@@ -178,129 +185,116 @@ export default function ApprovalsEnhancedPage() {
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>
-            Status
-          </label>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            style={{ width: '100%', padding: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', borderRadius: '4px', fontFamily: 'inherit' }}
-          >
-            <option value="pending">⏳ Pending</option>
+          <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Status</label>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+            style={{ width: '100%', padding: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', color: 'var(--text-primary)', borderRadius: '4px', fontSize: '12px' }}>
+            <option value="pending_approval">⏳ Pending</option>
             <option value="approved">✅ Approved</option>
             <option value="rejected">❌ Rejected</option>
-            <option value="all">All Statuses</option>
+            <option value="all">All</option>
           </select>
         </div>
       </div>
 
       {/* Recommendations List */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Loading...</div>
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: '14px' }}>🔄 Loading approvals...</div>
+        </div>
       ) : filtered.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', background: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)', borderRadius: '8px', color: 'var(--text-muted)' }}>
-          No recommendations match your filters
+          ✓ No recommendations pending
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {filtered.map(rec => {
-            const priority = priorityConfig[rec.priority] || priorityConfig.low;
+          {filtered.map((rec, idx) => {
+            const config = priorityConfig[rec.priority] || priorityConfig.low;
             const agentColor = agentColors[rec.agent];
             const isExpanded = expandedId === rec.id;
 
             return (
-              <div
-                key={rec.id}
-                style={{
-                  background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)',
-                  border: isExpanded ? `2px solid ${priority.color}` : `1px solid var(--border-secondary)`,
-                  borderLeft: `4px solid ${priority.color}`,
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  transition: 'all 0.2s ease',
-                  boxShadow: isExpanded ? `0 0 20px ${priority.color}33` : 'none'
-                }}
-              >
-                {/* Collapsed Header */}
-                <div
-                  onClick={() => setExpandedId(isExpanded ? null : rec.id)}
-                  style={{ padding: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
-                >
+              <div key={rec.id} style={{
+                background: isExpanded ? 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-accent) 100%)' : 'var(--bg-secondary)',
+                border: isExpanded ? `2px solid ${config.color}` : '1px solid var(--border-secondary)',
+                borderLeft: `4px solid ${config.color}`,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: isExpanded ? `0 0 20px ${config.color}44` : 'none',
+                transition: 'all 0.2s ease'
+              }}>
+                {/* Header - Click to Expand */}
+                <div onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                  style={{ padding: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                   <div style={{ flex: 1 }}>
-                    {/* Title Row */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                      <div style={{ fontSize: '18px' }}>{priority.emoji}</div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'start', marginBottom: '12px' }}>
+                      <div style={{ fontSize: '20px' }}>{config.emoji}</div>
                       <div>
                         <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>
                           {rec.title}
                         </div>
-                        <div style={{ fontSize: '11px', color: agentColor, fontWeight: '600', marginTop: '2px' }}>
-                          {rec.agent.toUpperCase()}
+                        <div style={{ fontSize: '11px', color: agentColor, fontWeight: '600', marginTop: '4px' }}>
+                          {rec.agent.toUpperCase()} • {rec.role.replace(/_/g, ' ')}
                         </div>
                       </div>
                     </div>
-
-                    {/* Quick Info */}
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '12px' }}>
-                      <div style={{ fontSize: '10px', background: `${priority.color}22`, color: priority.color, padding: '4px 8px', borderRadius: '3px', fontWeight: '600', textTransform: 'uppercase' }}>
-                        {priority.label}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: '10px', background: `${config.color}33`, color: config.color, padding: '4px 8px', borderRadius: '3px', fontWeight: '600', textTransform: 'uppercase' }}>
+                        {rec.priority.toUpperCase()}
                       </div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                        Confidence: <span style={{ color: rec.confidence > 0.8 ? 'var(--accent-green)' : rec.confidence > 0.6 ? 'var(--accent-gold)' : 'var(--priority-high)' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                        Confidence: <span style={{ color: rec.confidence > 0.9 ? '#004400' : rec.confidence > 0.7 ? '#8833ff' : '#cc0033', fontWeight: '600' }}>
                           {(rec.confidence * 100).toFixed(0)}%
                         </span>
                       </div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                        ID: {rec.id}
-                      </div>
                     </div>
                   </div>
-
-                  <div style={{ color: isExpanded ? priority.color : 'var(--text-muted)', fontSize: '20px', marginLeft: '16px', transition: 'transform 0.2s ease', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                  <div style={{ fontSize: '24px', color: isExpanded ? config.color : 'var(--text-muted)', transition: 'transform 0.2s ease', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                     ▼
                   </div>
                 </div>
 
-                {/* Expanded Content */}
+                {/* Expanded Details */}
                 {isExpanded && (
-                  <div style={{ padding: '24px', borderTop: `1px solid var(--border-secondary)`, display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {/* Reasoning Section */}
-                    <div>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                        🧠 Reasoning
+                  <div style={{ padding: '0 16px 16px 16px', borderTop: '1px solid var(--border-secondary)' }}>
+                    {/* Description */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>📋 Summary</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.6', background: 'var(--bg-tertiary)', padding: '12px', borderRadius: '4px' }}>
+                        {rec.description}
                       </div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-secondary)', background: 'var(--bg-base)', padding: '12px', borderRadius: '4px', borderLeft: `3px solid ${agentColor}`, lineHeight: '1.6' }}>
+                    </div>
+
+                    {/* Reasoning */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>🧠 Reasoning</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.6', background: 'var(--bg-tertiary)', padding: '12px', borderRadius: '4px' }}>
                         {rec.reasoning}
                       </div>
                     </div>
 
-                    {/* Impact Section */}
-                    <div>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--priority-high)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                        ⚡ Impact
-                      </div>
-                      <div style={{ fontSize: '13px', color: '#ff9999', background: 'rgba(255, 51, 51, 0.1)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid var(--priority-high)', lineHeight: '1.6' }}>
+                    {/* Impact */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '11px', color: '#cc0033', textTransform: 'uppercase', marginBottom: '6px', fontWeight: '600' }}>⚡ Impact</div>
+                      <div style={{ fontSize: '12px', color: '#e0e0e0', lineHeight: '1.6', background: 'rgba(204, 0, 51, 0.1)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #cc0033' }}>
                         {rec.impact}
                       </div>
                     </div>
 
                     {/* Action Items */}
                     {rec.action_items && rec.action_items.length > 0 && (
-                      <div>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                          ✓ Action Items
-                        </div>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '600' }}>✓ Action Items</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {rec.action_items.map((action, i) => (
-                            <div key={i} style={{ fontSize: '12px', color: 'var(--text-secondary)', background: 'var(--bg-base)', padding: '10px', borderRadius: '4px', display: 'flex', gap: '8px' }}>
-                              <div style={{ color: 'var(--accent-green)', fontWeight: '700', minWidth: '20px' }}>
-                                {i + 1}.
+                          {rec.action_items.map((item, i) => (
+                            <div key={i} style={{ padding: '12px', background: 'var(--bg-tertiary)', border: `1px solid ${config.color}33`, borderRadius: '4px' }}>
+                              <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                                {i + 1}. {item.title}
                               </div>
-                              <div>
-                                <div style={{ fontWeight: '600' }}>{action.title}</div>
-                                <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>
-                                  {action.description} ({action.estimated_time_minutes}min)
-                                </div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                                {item.description}
+                              </div>
+                              <div style={{ fontSize: '10px', color: config.color, fontWeight: '600' }}>
+                                ⏱️ ~{item.estimated_time_minutes} min
                               </div>
                             </div>
                           ))}
@@ -310,20 +304,15 @@ export default function ApprovalsEnhancedPage() {
 
                     {/* Trend Analysis */}
                     {rec.trend_analysis && (
-                      <div>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                          {rec.trend_analysis.direction_emoji} Trend Analysis
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', background: 'var(--bg-base)', padding: '12px', borderRadius: '4px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                          <div>
-                            <div style={{ fontSize: '10px', color: 'var(--text-dim)', marginBottom: '4px' }}>Metric</div>
-                            <div style={{ fontWeight: '600' }}>{rec.trend_analysis.metric}</div>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '600' }}>📈 Trend</div>
+                        <div style={{ padding: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', borderRadius: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{rec.trend_analysis.metric}</span>
+                            <span style={{ fontSize: '14px' }}>{rec.trend_analysis.direction_emoji}</span>
                           </div>
-                          <div>
-                            <div style={{ fontSize: '10px', color: 'var(--text-dim)', marginBottom: '4px' }}>Change</div>
-                            <div style={{ fontWeight: '600', color: rec.trend_analysis.percent_change > 0 ? 'var(--priority-high)' : 'var(--accent-green)' }}>
-                              {rec.trend_analysis.percent_change > 0 ? '+' : ''}{rec.trend_analysis.percent_change.toFixed(1)}%
-                            </div>
+                          <div style={{ fontSize: '12px', fontWeight: '600', color: '#8833ff', marginTop: '6px' }}>
+                            {rec.trend_analysis.current_value} (↑ {rec.trend_analysis.percent_change.toFixed(1)}%)
                           </div>
                         </div>
                       </div>
@@ -331,70 +320,80 @@ export default function ApprovalsEnhancedPage() {
 
                     {/* Evidence */}
                     {rec.evidence && rec.evidence.length > 0 && (
-                      <div>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                          📊 Evidence
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '600' }}>📊 Evidence</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px' }}>
                           {rec.evidence.map((ev, i) => (
-                            <div key={i} style={{ fontSize: '11px', background: 'var(--bg-base)', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-secondary)' }}>
-                              <div style={{ color: 'var(--text-dim)', marginBottom: '4px' }}>{ev.metric}</div>
-                              <div style={{ fontWeight: '700', color: 'var(--accent-cyan)' }}>{ev.value}</div>
-                              <div style={{ fontSize: '9px', color: 'var(--text-dim)', marginTop: '4px' }}>
-                                {ev.source}
-                              </div>
+                            <div key={i} style={{ padding: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-secondary)', borderRadius: '4px' }}>
+                              <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>{ev.metric}</div>
+                              <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{ev.value}</div>
+                              <div style={{ fontSize: '9px', color: 'var(--text-dim)', marginTop: '4px' }}>← {ev.source}</div>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {/* Action Buttons */}
-                    {rec.status === 'pending_approval' && (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-secondary)' }}>
-                        <button
-                          onClick={() => handleApprove(rec.id)}
-                          style={{
-                            background: 'var(--accent-green)',
-                            color: '#000',
-                            border: 'none',
-                            padding: '10px 16px',
-                            borderRadius: '4px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            textTransform: 'uppercase',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 0 16px var(--accent-green)66'}
-                          onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
-                        >
-                          ✅ APPROVE
-                        </button>
-                        <button
-                          onClick={() => {
-                            const reason = prompt('Rejection reason:');
-                            if (reason) handleReject(rec.id, reason);
-                          }}
-                          style={{
-                            background: 'var(--priority-high)',
-                            color: '#000',
-                            border: 'none',
-                            padding: '10px 16px',
-                            borderRadius: '4px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            textTransform: 'uppercase',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 0 16px var(--priority-high)66'}
-                          onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
-                        >
-                          ❌ REJECT
-                        </button>
+                    {/* Historical Context */}
+                    {rec.historical_context && (
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '600' }}>📜 History</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <div style={{ padding: '12px', background: 'rgba(0, 68, 0, 0.1)', border: '1px solid rgba(0, 68, 0, 0.3)', borderRadius: '4px' }}>
+                            <div style={{ fontSize: '10px', color: '#004400', fontWeight: '600', marginBottom: '4px' }}>✓ If Approved</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                              {rec.historical_context.outcome_if_approved}
+                            </div>
+                          </div>
+                          <div style={{ padding: '12px', background: 'rgba(204, 0, 51, 0.1)', border: '1px solid rgba(204, 0, 51, 0.3)', borderRadius: '4px' }}>
+                            <div style={{ fontSize: '10px', color: '#cc0033', fontWeight: '600', marginBottom: '4px' }}>✗ If Ignored</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                              {rec.historical_context.outcome_if_ignored}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
+
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '8px', paddingTop: '16px', borderTop: '1px solid var(--border-secondary)' }}>
+                      <button onClick={() => handleApprove(rec.id)}
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          background: '#004400',
+                          color: 'var(--text-primary)',
+                          border: 'none',
+                          borderRadius: '4px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 0 12px rgba(0, 68, 0, 0.6)'}
+                        onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                      >
+                        ✅ APPROVE
+                      </button>
+                      <button onClick={() => handleReject(rec.id)}
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          background: 'rgba(204, 0, 51, 0.2)',
+                          color: '#cc0033',
+                          border: '1px solid #cc0033',
+                          borderRadius: '4px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(204, 0, 51, 0.3)'; e.currentTarget.style.boxShadow = '0 0 12px rgba(204, 0, 51, 0.4)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(204, 0, 51, 0.2)'; e.currentTarget.style.boxShadow = 'none'; }}
+                      >
+                        ✗ REJECT
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
