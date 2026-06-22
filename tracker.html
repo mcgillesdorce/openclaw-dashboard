@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Psyche — Tracker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --bg-primary: #0a0e1a; --bg-secondary: #0f131f; --bg-tertiary: #131829; --text-primary: #e8eaed; --text-muted: #6f7684; --border-secondary: #252d4a; --accent-cyan: #00d9ff; --trans-fast: 150ms ease-out; }
+    html, body { background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; }
+    nav { position: sticky; top: 0; z-index: 50; background: linear-gradient(180deg, var(--bg-tertiary) 0%, rgba(15, 19, 31, 0.95) 100%); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-secondary); box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+    nav > div { display: flex; align-items: center; height: 64px; padding: 0 32px; gap: 32px; }
+    .nav-brand { text-decoration: none; color: var(--accent-cyan); font-weight: 900; font-size: 18px; }
+    .nav-brand span { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-left: 8px; }
+    .nav-tabs { display: flex; flex: 1; gap: 0; }
+    .nav-tab { text-decoration: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 8px 16px; transition: all var(--trans-fast); text-transform: uppercase; border-radius: 4px; }
+    .nav-tab:hover { color: var(--accent-cyan); background: rgba(0,217,255,0.08); }
+    .nav-tab.active { color: var(--accent-cyan); background: rgba(0,217,255,0.12); position: relative; }
+    .nav-tab.active::after { content: ''; position: absolute; bottom: 0; left: 16px; right: 16px; height: 3px; background: linear-gradient(90deg, var(--accent-cyan), transparent); border-radius: 3px 3px 0 0; }
+    .page-container { max-width: 1600px; margin: 0 auto; padding: 32px; }
+    .panel { background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(19,24,41,0.7) 100%); border: 1px solid var(--border-secondary); border-radius: 12px; padding: 60px 40px; text-align: center; backdrop-filter: blur(8px); }
+    .panel > div:first-child { font-size: 48px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+<nav><div>
+  <a href="/" class="nav-brand">🧠 Psyche <span>Control</span></a>
+  <div class="nav-tabs">
+    <a href="/" class="nav-tab">Overview</a>
+    <a href="/schedule.html" class="nav-tab">Schedule</a>
+    <a href="/analytics.html" class="nav-tab">Analytics</a>
+    <a href="/agents.html" class="nav-tab">Agents</a>
+    <a href="/billing.html" class="nav-tab">Billing</a>
+    <a href="/tracker.html" class="nav-tab active">Tracker</a>
+  </div>
+</div></nav>
+<div class="page-container"><div class="panel"><div>📍</div> Content Tracker Coming Soon</div></div>
+</body>
+</html>
