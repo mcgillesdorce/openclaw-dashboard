@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AgentAvatar } from '../components/AgentAvatar';
+import { AgentAvatar, AgentAvatarMini } from '../components/AgentAvatar';
 import { ETClock } from '../components/ETClock';
 
 interface Recommendation {
@@ -195,7 +195,7 @@ export default function EcosystemPage() {
                 onMouseEnter={(e) => e.currentTarget.style.borderColor = agentColor}
                 onMouseLeave={(e) => e.currentTarget.style.borderColor = selectedAgent === agentLower ? agentColor : 'var(--border-secondary)'}
               >
-                <span>['💰', '📖', '📊', '🧠'][['finch', 'scout', 'pulse', 'psyche'].indexOf(agentLower)]</span>
+                <AgentAvatarMini agent={agentLower as 'finch' | 'scout' | 'pulse' | 'psyche'} pendingCount={pendingCount} />
                 {agent}
                 {pendingCount > 0 && (
                   <div style={{
