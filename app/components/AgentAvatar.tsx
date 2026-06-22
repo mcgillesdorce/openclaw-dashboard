@@ -227,6 +227,7 @@ export function AgentAvatar({
       )}
     </div>
   );
+}
 
 /* Mini version for nav */
 export function AgentAvatarMini({
@@ -286,28 +287,7 @@ export function AgentAvatarMini({
   );
 }
 
-/* Spooky animations */
-if (typeof window !== 'undefined') {
-  const styleEl = document.createElement('style');
-  styleEl.textContent = `
-    @keyframes ghostFlicker {
-      0%, 100% { opacity: 1; }
-      33% { opacity: 0.8; }
-      66% { opacity: 0.9; }
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-  `;
-  if (document.head) {
-    document.head.appendChild(styleEl);
-  }
-}
+/* Animations defined in globals.css */
 
 /* Grid layout helper */
 export function AgentAvatarGrid() {
@@ -331,3 +311,4 @@ export function AgentAvatarGrid() {
       ))}
     </div>
   );
+}
