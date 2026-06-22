@@ -129,7 +129,7 @@ export default function Home() {
             ${monthlySpend.toFixed(2)}
           </div>
           <div className="stat-note" style={{ color: budgetStatus.color }}>
-            {monthlyPct.toFixed(1)}% of $10.00
+            {monthlyPct.toFixed(1)}% of ${monthlyBudget.toFixed(2)}
           </div>
         </div>
         
@@ -246,7 +246,7 @@ export default function Home() {
             🎯 Cost Optimization Target
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-            Keep monthly spend under $10.00. Current monthly average cost per video: <strong>${costPerVideo}</strong>. 
+            Keep monthly spend under ${monthlyBudget.toFixed(2)}. Current monthly average cost per video: <strong>${costPerVideo}</strong>. 
             Target: &lt;$1.00 per video for sustainable growth.
           </div>
         </div>
