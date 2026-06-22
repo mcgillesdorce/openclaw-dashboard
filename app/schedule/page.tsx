@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ETClock } from '../components/ETClock';
-import { formatTimeET } from '../utils/dateFormatter';
+import { formatTimeET, getCurrentTimeET } from '../utils/dateFormatter';
 
 const STATIC_SCHEDULE = [
   { time: '08:00', hour: 8, ampm: 'AM', agent: 'Finch', icon: '💰', task: 'Morning cost analysis' },
@@ -15,7 +15,7 @@ const STATIC_SCHEDULE = [
 ];
 
 function getRunStatus(hour: number): 'past' | 'next' | 'future' {
-  const now = new Date();
+  const now = getCurrentTimeET(); // Get current time in Eastern Time
   const currentHour = now.getHours();
   
   if (hour < currentHour) return 'past';
