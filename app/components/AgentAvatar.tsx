@@ -1,44 +1,54 @@
 'use client';
 
 const agentConfigs: Record<string, {
-  emoji: string;
+  skullEmoji: string;
+  spookyEmoji: string;
   name: string;
   color: string;
   darkColor: string;
   description: string;
-  icon: string;
+  hauntingPhrase: string;
+  glowColor: string;
 }> = {
   finch: {
-    emoji: '💰',
+    skullEmoji: '💀',  /* Skull with coins—greed incarnate */
+    spookyEmoji: '💸',  /* Haunted money */
     name: 'Finch',
     color: '#8833ff',
-    darkColor: '#4a1a80',
-    description: 'Financial Guardian',
-    icon: '🖤'
+    darkColor: '#3d1166',
+    description: 'Phantom Auditor',
+    hauntingPhrase: 'Counting the Cost of the Damned',
+    glowColor: 'rgba(136, 51, 255, 0.6)'
   },
   scout: {
-    emoji: '📖',
+    skullEmoji: '👁️',  /* All-seeing eye of the void */
+    spookyEmoji: '🔮',  /* Crystal ball for forbidden knowledge */
     name: 'Scout',
     color: '#003366',
     darkColor: '#001a33',
-    description: 'Research Oracle',
-    icon: '🖤'
+    description: 'Midnight Seer',
+    hauntingPhrase: 'Seeking Truth Beyond the Veil',
+    glowColor: 'rgba(0, 51, 102, 0.6)'
   },
   pulse: {
-    emoji: '📊',
+    skullEmoji: '💀',  /* Heartbeat of the dead */
+    spookyEmoji: '⚰️',  /* Coffin—the final resting place */
     name: 'Pulse',
-    color: '#884400',
-    darkColor: '#442200',
-    description: 'Performance Seer',
-    icon: '🖤'
+    color: '#aa6600',
+    darkColor: '#552200',
+    description: 'Death Keeper',
+    hauntingPhrase: 'Measuring the Heartbeat of Decay',
+    glowColor: 'rgba(170, 102, 0, 0.6)'
   },
   psyche: {
-    emoji: '🧠',
+    skullEmoji: '🕷️',  /* Spider in the mind—weaver of fates */
+    spookyEmoji: '🌑',  /* Dark moon—orchestrator of shadows */
     name: 'Psyche',
-    color: '#cc0033',
-    darkColor: '#660019',
-    description: 'Orchestrator Prime',
-    icon: '🖤'
+    color: '#ff1133',
+    darkColor: '#770011',
+    description: 'Architect of Nightmares',
+    hauntingPhrase: 'Orchestrating the Symphony of Shadows',
+    glowColor: 'rgba(255, 17, 51, 0.7)'
   }
 };
 
@@ -61,65 +71,87 @@ export function AgentAvatar({
   if (!config) return null;
 
   const sizeMap = {
-    sm: { width: '40px', height: '40px', fontSize: '18px', fontSize2: '10px' },
-    md: { width: '60px', height: '60px', fontSize: '28px', fontSize2: '12px' },
-    lg: { width: '100px', height: '100px', fontSize: '48px', fontSize2: '14px' }
+    sm: { width: '40px', height: '40px', fontSize: '20px', fontSize2: '9px' },
+    md: { width: '80px', height: '80px', fontSize: '42px', fontSize2: '11px' },
+    lg: { width: '140px', height: '140px', fontSize: '72px', fontSize2: '13px' }
   };
 
   const sz = sizeMap[size];
 
   const statusDot = {
-    idle: { bg: '#444444', glow: 'none' },
-    working: { bg: '#8833ff', glow: '0 0 12px #8833ff' },
-    awaiting_approval: { bg: '#cc0033', glow: '0 0 12px #cc0033' }
+    idle: { bg: '#333333', glow: 'none' },
+    working: { bg: '#00aa44', glow: '0 0 16px #00aa44, inset 0 0 8px #00aa44' },
+    awaiting_approval: { bg: '#ff1133', glow: '0 0 16px #ff1133, inset 0 0 8px #ff1133' }
   }[status];
 
+  const animationStyle = `
+    @keyframes haunt-${agent} {
+      0%, 100% { transform: translateY(0px); opacity: 1; }
+      50% { transform: translateY(-4px); opacity: 0.95; }
+    }
+    @keyframes ghostGlow-${agent} {
+      0%, 100% { box-shadow: 0 0 20px ${config.glowColor}, inset 0 0 20px rgba(0,0,0,0.8), 0 0 40px ${config.glowColor}44; }
+      50% { box-shadow: 0 0 32px ${config.glowColor}, inset 0 0 20px rgba(0,0,0,0.8), 0 0 60px ${config.glowColor}66; }
+    }
+  `;
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+      <style>{animationStyle}</style>
+      
       {/* Main Avatar */}
       <div
         style={{
           position: 'relative',
           width: sz.width,
           height: sz.height,
-          background: `linear-gradient(135deg, ${config.darkColor} 0%, ${config.darkColor}33 100%)`,
+          background: `linear-gradient(135deg, ${config.darkColor} 0%, rgba(0,0,0,0.8) 100%)`,
           border: `2px solid ${config.color}`,
-          borderRadius: '8px',
+          borderRadius: '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: sz.fontSize,
           fontWeight: '700',
-          boxShadow: `0 0 16px ${config.color}33, inset 0 0 12px rgba(0,0,0,0.8)`,
-          transition: 'all 200ms ease'
+          boxShadow: `0 0 20px ${config.glowColor}, inset 0 0 20px rgba(0,0,0,0.8), 0 0 40px ${config.glowColor}44`,
+          transition: 'all 300ms ease',
+          animation: `haunt-${agent} 3s ease-in-out infinite, ghostGlow-${agent} 4s ease-in-out infinite`,
+          filter: 'drop-shadow(0 0 8px ' + config.glowColor + ')'
         }}
       >
-        {/* Dark frame effect */}
+        {/* Inner ghostly mist */}
         <div style={{
           position: 'absolute',
           inset: '0',
-          background: `radial-gradient(circle at 30% 30%, transparent 0%, ${config.darkColor}77 100%)`,
-          borderRadius: '6px',
-          pointerEvents: 'none'
+          background: `radial-gradient(circle at 35% 35%, ${config.glowColor}15 0%, transparent 50%)`,
+          borderRadius: '14px',
+          pointerEvents: 'none',
+          animation: `spin 20s linear infinite`
         }} />
         
-        {/* Emoji */}
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          {config.emoji}
+        {/* Skull or spooky emoji */}
+        <div style={{ 
+          position: 'relative', 
+          zIndex: 2,
+          textShadow: `0 0 12px ${config.glowColor}`
+        }}>
+          {config.skullEmoji}
         </div>
 
         {/* Status Dot */}
         <div
           style={{
             position: 'absolute',
-            bottom: '-4px',
-            right: '-4px',
-            width: '14px',
-            height: '14px',
+            bottom: '-6px',
+            right: '-6px',
+            width: '18px',
+            height: '18px',
             background: statusDot.bg,
-            border: '2px solid #1a1a1a',
+            border: `2px solid ${config.darkColor}`,
             borderRadius: '50%',
-            boxShadow: statusDot.glow
+            boxShadow: statusDot.glow,
+            transition: 'all 300ms ease',
+            animation: statusDot.bg !== '#333333' ? 'pulse 1.5s ease-in-out infinite' : 'none'
           }}
         />
 
@@ -127,19 +159,21 @@ export function AgentAvatar({
         {pendingCount > 0 && (
           <div style={{
             position: 'absolute',
-            top: '-6px',
-            right: '-6px',
-            background: '#cc0033',
-            color: '#e0e0e0',
-            width: '22px',
-            height: '22px',
+            top: '-8px',
+            right: '-8px',
+            background: '#ff1133',
+            color: '#d0d0d0',
+            width: '28px',
+            height: '28px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '11px',
+            fontSize: '12px',
             fontWeight: '700',
-            boxShadow: '0 0 8px #cc0033'
+            boxShadow: '0 0 16px #ff1133, inset 0 0 8px #ff1133',
+            border: '2px solid #0a0a0a',
+            animation: 'pulse 1s ease-in-out infinite'
           }}>
             {pendingCount}
           </div>
@@ -149,11 +183,31 @@ export function AgentAvatar({
       {/* Label (optional) */}
       {showLabel && (
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: config.color }}>
+          <div style={{ 
+            fontSize: '13px', 
+            fontWeight: '700', 
+            color: config.color,
+            textShadow: `0 0 8px ${config.glowColor}`
+          }}>
             {config.name}
           </div>
-          <div style={{ fontSize: '10px', color: '#888888', marginTop: '2px' }}>
+          <div style={{ 
+            fontSize: '9px', 
+            color: '#777777', 
+            marginTop: '2px',
+            fontStyle: 'italic',
+            letterSpacing: '0.5px'
+          }}>
             {config.description}
+          </div>
+          <div style={{ 
+            fontSize: '8px', 
+            color: config.color, 
+            marginTop: '4px',
+            opacity: 0.7,
+            maxWidth: '120px'
+          }}>
+            "{config.hauntingPhrase}"
           </div>
         </div>
       )}
@@ -162,17 +216,17 @@ export function AgentAvatar({
       {status !== 'idle' && (
         <div style={{
           fontSize: '10px',
-          color: statusDot.bg === '#444444' ? '#888888' : statusDot.bg,
+          color: statusDot.bg === '#333333' ? '#777777' : statusDot.bg,
           fontWeight: '600',
           textTransform: 'uppercase',
-          letterSpacing: '1px'
+          letterSpacing: '1px',
+          textShadow: statusDot.bg !== '#333333' ? `0 0 8px ${statusDot.bg}` : 'none'
         }}>
-          {status === 'working' ? '● Working' : '⚠ Awaiting'}
+          {status === 'working' ? '⚡ Haunting' : '⚠ Cursed'}
         </div>
       )}
     </div>
   );
-}
 
 /* Mini version for nav */
 export function AgentAvatarMini({
@@ -189,45 +243,70 @@ export function AgentAvatarMini({
     <div
       style={{
         position: 'relative',
-        width: '28px',
-        height: '28px',
-        background: `linear-gradient(135deg, ${config.darkColor} 0%, ${config.darkColor}33 100%)`,
-        border: `1px solid ${config.color}`,
-        borderRadius: '4px',
+        width: '32px',
+        height: '32px',
+        background: `linear-gradient(135deg, ${config.darkColor} 0%, rgba(0,0,0,0.8) 100%)`,
+        border: `1.5px solid ${config.color}`,
+        borderRadius: '6px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '14px',
+        fontSize: '18px',
         fontWeight: '700',
-        boxShadow: `0 0 8px ${config.color}22`,
+        boxShadow: `0 0 12px ${config.glowColor}, inset 0 0 8px rgba(0,0,0,0.8)`,
         cursor: 'pointer',
-        transition: 'all 150ms ease'
+        transition: 'all 200ms ease',
+        animation: 'ghostFlicker 2.5s ease-in-out infinite'
       }}
       title={config.name}
     >
-      {config.emoji}
+      {config.skullEmoji}
       {pendingCount > 0 && (
         <div style={{
           position: 'absolute',
-          top: '-4px',
-          right: '-4px',
-          background: '#cc0033',
-          color: '#e0e0e0',
-          width: '16px',
-          height: '16px',
+          top: '-6px',
+          right: '-6px',
+          background: '#ff1133',
+          color: '#d0d0d0',
+          width: '20px',
+          height: '20px',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '9px',
+          fontSize: '10px',
           fontWeight: '700',
-          boxShadow: '0 0 6px #cc0033'
+          boxShadow: '0 0 12px #ff1133',
+          border: '1px solid #0a0a0a'
         }}>
           {pendingCount}
         </div>
       )}
     </div>
   );
+}
+
+/* Spooky animations */
+if (typeof window !== 'undefined') {
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    @keyframes ghostFlicker {
+      0%, 100% { opacity: 1; }
+      33% { opacity: 0.8; }
+      66% { opacity: 0.9; }
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  `;
+  if (document.head) {
+    document.head.appendChild(styleEl);
+  }
 }
 
 /* Grid layout helper */
@@ -237,12 +316,13 @@ export function AgentAvatarGrid() {
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-      gap: '24px',
-      padding: '24px',
-      background: 'var(--bg-secondary)',
-      borderRadius: '8px',
-      border: '1px solid var(--border-secondary)'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+      gap: '32px',
+      padding: '32px',
+      background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(26, 0, 40, 0.5) 100%)',
+      borderRadius: '12px',
+      border: 'rgba(255, 17, 51, 0.2) 1px',
+      boxShadow: 'inset 0 0 32px rgba(0,0,0,0.6), 0 0 32px rgba(255,17,51,0.1)'
     }}>
       {agents.map(agent => (
         <div key={agent} style={{ display: 'flex', justifyContent: 'center' }}>
@@ -251,4 +331,3 @@ export function AgentAvatarGrid() {
       ))}
     </div>
   );
-}

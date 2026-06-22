@@ -10,49 +10,53 @@
 }
 
 :root {
-  /* GOTHIC EMO BLACK THEME */
-  /* Base Palette — Deep blacks, charcoal, shadow */
-  --bg-base: #0d0d0d;          /* Almost pure black */
-  --bg-secondary: #1a1a1a;     /* Charcoal black */
-  --bg-tertiary: #222222;      /* Deep gray-black */
-  --bg-hover: #2d2d2d;         /* Darker hover state */
-  --bg-accent: #1a0d2e;        /* Deep gothic purple */
+  /* SPOOKY GOTHIC THEME — Haunted, Eerie, Otherworldly */
+  /* Base Palette — Pure blacks, mist, decay */
+  --bg-base: #040404;          /* Pure digital black */
+  --bg-secondary: #0f0f0f;     /* Void black */
+  --bg-tertiary: #1a1a1a;      /* Shadow black */
+  --bg-hover: #2d2d2d;         /* Spectral gray */
+  --bg-accent: #1a0008;        /* Blood-stained black */
   
-  /* Text — Muted ghostly white */
-  --text-primary: #e0e0e0;     /* Soft white (not bright) */
-  --text-secondary: #999999;   /* Mid-gray */
-  --text-muted: #555555;       /* Dark gray */
-  --text-dim: #333333;         /* Very dark gray */
+  /* Text — Ghastly pale */
+  --text-primary: #d0d0d0;     /* Pale ghost */
+  --text-secondary: #888888;   /* Mist gray */
+  --text-muted: #444444;       /* Tomb shadow */
+  --text-dim: #222222;         /* Void */
   
-  /* Emo Accents — Deep purples, magentas, dark reds */
-  --accent-cyan: #8833ff;      /* Deep purple */
-  --accent-purple: #cc00ff;    /* Magenta purple */
-  --accent-red: #cc0033;       /* Deep wine red */
-  --accent-gold: #884400;      /* Dark bronze */
-  --accent-green: #004400;     /* Very dark green */
-  --accent-blue: #003366;      /* Deep midnight blue */
+  /* Spooky Accents — Blood red, sickly green, spectral purple, bone white */
+  --accent-cyan: #8833ff;      /* Haunted purple */
+  --accent-purple: #9d00ff;    /* Sickly violet */
+  --accent-red: #cc0033;       /* Fresh blood */
+  --accent-red-dark: #770011;  /* Dried blood */
+  --accent-green: #00aa44;     /* Corpse phosphorescence */
+  --accent-blue: #001166;      /* Moonless void */
+  --accent-bone: #e6d5b8;      /* Haunted bone white */
+  --accent-mist: rgba(200, 200, 255, 0.15); /* Spectral mist */
   
-  /* Priority Colors — Emo dark with emotional edge */
-  --priority-critical: #cc0033;  /* Wine red */
-  --priority-high: #884400;      /* Dark bronze */
-  --priority-medium: #8833ff;    /* Deep purple */
-  --priority-low: #003366;       /* Midnight blue */
+  /* Priority Colors — Spooky edition */
+  --priority-critical: #ff1133;  /* Crimson scream */
+  --priority-high: #aa4400;      /* Burnt flesh */
+  --priority-medium: #8833ff;    /* Phantom purple */
+  --priority-low: #003366;       /* Drowned blue */
   
-  /* Borders — Shadow and ghost */
-  --border-primary: #2d2d2d;
-  --border-secondary: #1a1a1a;
-  --border-light: #333333;
-  --border-neon: rgba(136, 51, 255, 0.2);  /* Purple-ish glow */
+  /* Borders — Ethereal and ominous */
+  --border-primary: #1a1a1a;
+  --border-secondary: #0f0f0f;
+  --border-light: #2d2d2d;
+  --border-neon: rgba(255, 17, 51, 0.3);  /* Blood-red glow */
+  --border-spectral: rgba(136, 51, 255, 0.25);  /* Phantom glow */
   
   /* Transitions */
   --trans-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --trans-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --trans-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
+  /* Shadows — Haunting and ominous */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.7);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.8);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.9);
+  --shadow-eerie: 0 0 32px rgba(255, 17, 51, 0.2);
 }
 
 html, body {
@@ -63,7 +67,7 @@ html, body {
 }
 
 body {
-  background: linear-gradient(180deg, var(--bg-base) 0%, var(--bg-secondary) 100%);
+  background: linear-gradient(180deg, var(--bg-base) 0%, #0a0a0a 50%, var(--bg-secondary) 100%);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   font-size: 14px;
@@ -71,6 +75,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle haunting mist effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(136, 51, 255, 0.03) 0%, rgba(0, 0, 0, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ============================================================
@@ -81,10 +100,10 @@ nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: linear-gradient(180deg, var(--bg-tertiary) 0%, rgba(15, 19, 31, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-secondary);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(180deg, var(--bg-tertiary) 0%, rgba(5, 5, 10, 0.98) 100%);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 17, 51, 0.2);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 17, 51, 0.1);
   height: 64px;
 }
 
@@ -109,10 +128,17 @@ nav {
   letter-spacing: -0.8px;
   flex-shrink: 0;
   transition: all var(--trans-fast);
+  text-shadow: 0 0 8px rgba(255, 17, 51, 0.4);
 }
 
 .nav-brand:hover {
-  text-shadow: 0 0 16px rgba(204, 0, 51, 0.8);
+  text-shadow: 0 0 20px rgba(255, 17, 51, 0.8), 0 0 40px rgba(136, 51, 255, 0.4);
+  animation: bloodPulse 0.6s ease-in-out infinite;
+}
+
+@keyframes bloodPulse {
+  0%, 100% { color: var(--accent-red); }
+  50% { color: #ff3355; }
 }
 
 .nav-brand span {
@@ -190,18 +216,22 @@ nav {
   height: 8px;
   background: var(--accent-green);
   border-radius: 50%;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
-  animation: pulse 2s infinite;
+  box-shadow: 0 0 16px rgba(0, 170, 68, 0.9), inset 0 0 8px rgba(0, 170, 68, 0.6);
+  animation: spookyPulse 1.5s ease-in-out infinite;
   margin-left: 12px;
   flex-shrink: 0;
 }
 
-@keyframes pulse {
+@keyframes spookyPulse {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 16px rgba(0, 170, 68, 0.9), inset 0 0 8px rgba(0, 170, 68, 0.6);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.6;
+    transform: scale(0.9);
+    box-shadow: 0 0 8px rgba(0, 170, 68, 0.5), inset 0 0 4px rgba(0, 170, 68, 0.3);
   }
 }
 
@@ -245,28 +275,30 @@ nav {
    ============================================================ */
 
 .panel {
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(19, 24, 41, 0.7) 100%);
-  border: 1px solid var(--border-secondary);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(10, 0, 20, 0.6) 100%);
+  border: 1px solid rgba(255, 17, 51, 0.15);
   border-radius: 12px;
   padding: 24px;
   transition: all var(--trans-base);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.6);
 }
 
 .panel:hover {
-  border-color: var(--border-light);
-  box-shadow: 0 0 32px rgba(204, 0, 51, 0.15);
+  border-color: rgba(255, 17, 51, 0.4);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 17, 51, 0.2), 0 0 80px rgba(136, 51, 255, 0.08);
 }
 
 .stat-box {
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(19, 24, 41, 0.5) 100%);
-  border: 1px solid var(--border-secondary);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(10, 0, 20, 0.7) 100%);
+  border: 1px solid rgba(255, 17, 51, 0.2);
   border-radius: 12px;
   padding: 24px;
   position: relative;
   overflow: hidden;
   transition: all var(--trans-base);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .stat-box::before {
@@ -275,15 +307,15 @@ nav {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent-red), transparent);
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 17, 51, 0.8), transparent);
   opacity: 0;
   transition: opacity var(--trans-base);
 }
 
 .stat-box:hover {
-  border-color: var(--accent-red);
-  box-shadow: 0 0 24px rgba(204, 0, 51, 0.2);
+  border-color: rgba(255, 17, 51, 0.5);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 32px rgba(255, 17, 51, 0.25), 0 0 64px rgba(136, 51, 255, 0.1);
 }
 
 .stat-box:hover::before {
@@ -307,6 +339,7 @@ nav {
   line-height: 1;
   margin-bottom: 12px;
   letter-spacing: -1px;
+  text-shadow: 0 0 12px rgba(255, 17, 51, 0.5);
 }
 
 .stat-unit {
