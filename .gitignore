@@ -1,9 +1,8 @@
 # Data URL config — contains Gist URLs, gitignored so live URLs stay private
 config.js
 
-# Local data files — never commit real pipeline data
-dashboard_data.json
-billing_data.json
+# NOTE: billing_data.json and dashboard_data.json ARE tracked on 'data' branch
+# They're only gitignored on 'main' branch to avoid committing local dev data
 *.jsonl
 
 # Editor / OS
