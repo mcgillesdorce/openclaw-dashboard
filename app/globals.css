@@ -10,39 +10,39 @@
 }
 
 :root {
-  /* GOTHIC STEALTH METAL THEME */
-  /* Base Palette — Industrial blacks & grays */
-  --bg-base: #0a0a0f;
-  --bg-secondary: #0f0f1a;
-  --bg-tertiary: #151520;
-  --bg-hover: #1a1a28;
-  --bg-accent: #1a1a3a;  /* Subtle dark purple tint */
+  /* GOTHIC EMO BLACK THEME */
+  /* Base Palette — Deep blacks, charcoal, shadow */
+  --bg-base: #0d0d0d;          /* Almost pure black */
+  --bg-secondary: #1a1a1a;     /* Charcoal black */
+  --bg-tertiary: #222222;      /* Deep gray-black */
+  --bg-hover: #2d2d2d;         /* Darker hover state */
+  --bg-accent: #1a0d2e;        /* Deep gothic purple */
   
-  /* Text — Sharp contrast */
-  --text-primary: #f0f0f5;
-  --text-secondary: #a0a0b0;
-  --text-muted: #606070;
-  --text-dim: #404050;
+  /* Text — Muted ghostly white */
+  --text-primary: #e0e0e0;     /* Soft white (not bright) */
+  --text-secondary: #999999;   /* Mid-gray */
+  --text-muted: #555555;       /* Dark gray */
+  --text-dim: #333333;         /* Very dark gray */
   
-  /* Metal Accents — Neon vs industrial */
-  --accent-cyan: #00ffdd;      /* Bright neon cyan */
-  --accent-purple: #cc33ff;    /* Neon purple */
-  --accent-red: #ff3333;       /* Neon red */
-  --accent-gold: #ffaa00;      /* Metallic gold */
-  --accent-green: #00ff88;     /* Neon green */
-  --accent-blue: #0099ff;      /* Neon blue */
+  /* Emo Accents — Deep purples, magentas, dark reds */
+  --accent-cyan: #8833ff;      /* Deep purple */
+  --accent-purple: #cc00ff;    /* Magenta purple */
+  --accent-red: #cc0033;       /* Deep wine red */
+  --accent-gold: #884400;      /* Dark bronze */
+  --accent-green: #004400;     /* Very dark green */
+  --accent-blue: #003366;      /* Deep midnight blue */
   
-  /* Priority Colors */
-  --priority-critical: #ff3333;  /* Neon red */
-  --priority-high: #ff9900;      /* Neon orange */
-  --priority-medium: #ffaa00;    /* Gold */
-  --priority-low: #00ffdd;       /* Cyan */
+  /* Priority Colors — Emo dark with emotional edge */
+  --priority-critical: #cc0033;  /* Wine red */
+  --priority-high: #884400;      /* Dark bronze */
+  --priority-medium: #8833ff;    /* Deep purple */
+  --priority-low: #003366;       /* Midnight blue */
   
-  /* Borders — Steel/industrial */
-  --border-primary: #1a1a2a;
-  --border-secondary: #252535;
-  --border-light: #353555;
-  --border-neon: rgba(0, 255, 221, 0.3);  /* Cyan glow */
+  /* Borders — Shadow and ghost */
+  --border-primary: #2d2d2d;
+  --border-secondary: #1a1a1a;
+  --border-light: #333333;
+  --border-neon: rgba(136, 51, 255, 0.2);  /* Purple-ish glow */
   
   /* Transitions */
   --trans-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
