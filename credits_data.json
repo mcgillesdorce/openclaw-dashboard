@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T09:32:48",
+  "updated": "2026-06-22T09:35:48",
   "total_month_spend": 2.13,
   "services": [
     {
@@ -10,7 +10,9 @@
       "source": "manual",
       "month_spend_usd": 0.0,
       "all_time_spend_usd": 0.0,
-      "note": "Set ANTHROPIC_CREDITS_BALANCE=<amount> in .env after each top-up",
+      "credits_usd": 68.23,
+      "pct_remaining": 100.0,
+      "note": "$68.23 remaining \u00b7 $0.00 spent all-time",
       "low_credits": false
     },
     {
@@ -18,10 +20,12 @@
       "label": "fal.ai (Seedance)",
       "icon": "\ud83c\udfac",
       "color": "#34e0c4",
-      "source": "unknown",
+      "source": "manual",
       "month_spend_usd": 2.0,
       "all_time_spend_usd": 2.0,
-      "note": "Set FAL_CREDITS_BALANCE=<amount> in .env or add FAL_KEY",
+      "credits_usd": 35.58,
+      "pct_remaining": 94.7,
+      "note": "$35.58 remaining \u00b7 $2.00 spent all-time",
       "low_credits": false
     },
     {
