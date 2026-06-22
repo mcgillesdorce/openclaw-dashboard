@@ -1,256 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Psyche — Overview</title>
-<link rel="stylesheet" href="shared.css">
-<style>
-  .hero{display:grid;grid-template-columns:minmax(260px,320px) 1fr;gap:16px;margin-bottom:20px}
-  @media(max-width:840px){.hero{grid-template-columns:1fr}}
-  .gauge-panel{background:linear-gradient(160deg,var(--ink-2),var(--panel));
-    border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px}
-  .approval-bar{background:var(--line);border-radius:4px;height:8px;overflow:hidden;margin:4px 0}
-  .approval-fill{height:100%;background:var(--cyan);border-radius:4px;transition:width .4s}
-  .pipeline-status{display:flex;align-items:center;gap:8px;font-size:13px}
-  .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .status-dot.live{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2.4s infinite}
-  .status-dot.idle{background:var(--amber)}
-  .status-dot.error{background:var(--red)}
-  .recent-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
-    padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
-  .recent-row:last-child{border-bottom:none}
-  .topic-tag{font-size:11px;color:var(--faint)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Psyche — Mission Control</title>
+  <link rel="stylesheet" href="shared.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <nav>
-  <a class="nav-brand" href="/">Psyche <span>Mission Control</span></a>
+  <a class="nav-brand" href="/">🧠 Psyche <span>Control</span></a>
   <a class="tab active" href="/">Overview</a>
-  <a class="tab" href="/schedule">Schedule</a>
-  <a class="tab" href="/analytics">Analytics</a>
-  <a class="tab" href="/agents">Agents</a>
-  <a class="tab" href="/billing">Billing</a>
-  <a class="tab" href="/tracker">Tracker</a>
-  <span class="nav-status" id="navUpdated"></span>
+  <a class="tab" href="/schedule/">Schedule</a>
+  <a class="tab" href="/analytics/">Analytics</a>
+  <a class="tab" href="/agents/">Agents</a>
+  <a class="tab" href="/billing/">Billing</a>
+  <a class="tab" href="/tracker/">Tracker</a>
+  <span class="nav-status" id="navUpdated">updated: —</span>
   <div class="nav-dot"></div>
 </nav>
+
 <div class="page">
-
-  <!-- Hero: gauge + KPIs -->
-  <div class="hero">
-    <div class="gauge-panel">
-      <div>
-        <div class="gauge-label">Cost / Approved Video</div>
-        <div class="gauge-big mono">$<span id="cpa">—</span></div>
-        <div class="gauge-sub">target: &lt;$3.00 · avg all: $<span id="cpg">—</span></div>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:var(--muted)">Approval rate</span>
-          <span class="mono" id="approvalNote">—</span>
-        </div>
-        <div class="approval-bar"><div class="approval-fill" id="approvalMeter" style="width:0"></div></div>
-        <div style="font-size:11px;color:var(--faint);margin-top:4px"><span id="approvedCount">—</span> approved of <span id="totalCount">—</span> generated</div>
-      </div>
-      <div>
-        <div class="pipeline-status">
-          <div class="status-dot idle" id="statusDot"></div>
-          <span id="statusText" style="color:var(--muted)">idle</span>
-        </div>
-        <div style="font-size:11px;color:var(--faint);margin-top:4px" id="lastRunNote"></div>
-      </div>
+  <!-- Hero Section: Key Metrics -->
+  <div class="grid g4 mb-2xl">
+    <div class="stat-box">
+      <div class="stat-label">💰 Cost / Approved</div>
+      <div class="stat-value">$<span id="cpa">—</span></div>
+      <div class="stat-note">Target: &lt;$3.00</div>
     </div>
-    <div class="grid g2" style="align-content:start">
-      <div id="kpis" class="grid g2" style="grid-column:1/-1"></div>
+    <div class="stat-box">
+      <div class="stat-label">📊 Approval Rate</div>
+      <div class="stat-value"><span id="approvalRate">—</span><span class="stat-unit">%</span></div>
+      <div class="stat-note"><span id="approvedCount">—</span>/<span id="totalCount">—</span> generated</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">🎬 Videos Today</div>
+      <div class="stat-value"><span id="videoCount">—</span></div>
+      <div class="stat-note" id="videoNote">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">💳 Monthly Spend</div>
+      <div class="stat-value">$<span id="monthlySpend">—</span></div>
+      <div class="stat-note" id="spendNote">—</div>
     </div>
   </div>
 
-  <!-- Cost trend -->
-  <div class="section">
-    <div class="section-title">Daily Spend</div>
-    <div class="panel">
-      <canvas id="costChart" height="120" style="width:100%"></canvas>
+  <!-- Status Row -->
+  <div class="panel mb-2xl">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--gap-xl);">
+      <div>
+        <div class="gauge-label">
+          <span class="gauge-label-left">Pipeline Status</span>
+          <span id="statusText" style="color: var(--green); display: flex; align-items: center; gap: var(--gap-sm);">
+            <span class="status-dot live"></span>Running
+          </span>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--gap-md);" id="lastRunNote">Last run: —</div>
+      </div>
+      <div>
+        <div class="gauge">
+          <div class="gauge-label">
+            <span class="gauge-label-left">Daily Budget Used</span>
+            <span class="gauge-label-right" id="budgetPct">0%</span>
+          </div>
+          <div class="gauge-bar">
+            <div class="gauge-fill" id="budgetMeter" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="gauge">
+          <div class="gauge-label">
+            <span class="gauge-label-left">API Credits Health</span>
+            <span class="gauge-label-right" id="creditHealth">—</span>
+          </div>
+          <div class="gauge-bar">
+            <div class="gauge-fill" id="creditMeter" style="width: 0%; background: linear-gradient(90deg, var(--blue), var(--purple));"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Two-column: top videos + topic leaderboard -->
-  <div class="grid g2">
-    <div class="section" style="margin-bottom:0">
+  <!-- Two Column: Spend Trend + Top Performers -->
+  <div class="grid g2 mb-2xl">
+    <div class="section">
+      <div class="section-title">Daily Spend Trend</div>
+      <div class="panel">
+        <div class="chart-container">
+          <canvas id="costChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="section">
       <div class="section-title">Top Videos by Views</div>
-      <div class="panel"><div class="bars" id="topVideos"></div></div>
-    </div>
-    <div class="section" style="margin-bottom:0">
-      <div class="section-title">Topic Leaderboard</div>
-      <div class="panel"><div class="bars" id="topicBars"></div></div>
+      <div class="panel" style="padding: 0;">
+        <div id="topVideos" style="padding: var(--gap-lg);">
+          <div class="empty-state">
+            <div class="empty-state-text">Loading data...</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Recent activity -->
-  <div class="section" style="margin-top:28px">
+  <!-- Topic Leaderboard -->
+  <div class="section mb-2xl">
+    <div class="section-title">Topic Leaderboard</div>
+    <div class="panel" style="padding: 0;">
+      <div id="topicBars" style="padding: var(--gap-lg);">
+        <div class="empty-state">
+          <div class="empty-state-text">Loading data...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity Timeline -->
+  <div class="section">
     <div class="section-title">Recent Activity</div>
-    <div class="panel"><div id="recentList"></div></div>
+    <div class="timeline" id="recentTimeline">
+      <div class="event">
+        <div class="event-icon">⏳</div>
+        <div class="event-time">—</div>
+        <div class="event-agent">Loading</div>
+        <div class="event-desc">Fetching live data...</div>
+        <div class="event-cost">—</div>
+      </div>
+    </div>
   </div>
 
-  <div class="data-footer">source: <span id="src">—</span></div>
+  <div class="data-footer">
+    <span style="color: var(--text-dim);">Data source: GitHub | Last sync: <span id="lastSync" style="color: var(--cyan); font-family: 'Monaco', 'Courier New', monospace;">—</span></span>
+  </div>
 </div>
 
 <script src="config.js"></script>
 <script>
-const SAMPLE={
-  updated:new Date().toISOString().slice(0,19),
-  pipeline_status:"idle",last_run:null,
-  kpis:{videos_total:35,videos_approved:25,videos_posted:25,approval_rate_pct:71.4,
-    total_cost_usd:53.65,cost_per_approved_usd:2.15,total_views:307300,
-    avg_engagement_pct:11.32,total_follows:1223,total_revenue_usd:null},
-  cost_trend:[["06-08",4.1],["06-09",3.6],["06-10",5.2],["06-11",4.4],["06-12",3.1],
-    ["06-13",4.8],["06-14",3.9],["06-15",5.5],["06-16",2.9],["06-17",4.2],
-    ["06-18",3.7],["06-19",4.9],["06-20",3.3],["06-21",4.0]].map(([date,cost])=>({date,cost})),
-  top_videos:[
-    {topic:"Loss Aversion",views:51000,engagement:13.2,url:"",approved:true},
-    {topic:"The Spotlight Effect",views:22000,engagement:10.8,url:"",approved:true},
-    {topic:"Dunning-Kruger",views:9000,engagement:9.4,url:"",approved:true},
-    {topic:"Cognitive Dissonance",views:4200,engagement:8.1,url:"",approved:true},
-    {topic:"The Halo Effect",views:1500,engagement:6.9,url:"",approved:true}],
-  topic_leaderboard:[
-    {topic:"Loss Aversion",avg_views:28500,count:3,win_rate:100},
-    {topic:"The Spotlight Effect",avg_views:16200,count:2,win_rate:100},
-    {topic:"Dunning-Kruger",avg_views:7400,count:4,win_rate:75},
-    {topic:"Cognitive Dissonance",avg_views:5100,count:3,win_rate:67},
-    {topic:"The Halo Effect",avg_views:2300,count:2,win_rate:50}],
-  recent:[
-    {ts:"2026-06-21T14:22:00",event:"approved",topic:"Loss Aversion",note:"h5 v4 s5 p4"},
-    {ts:"2026-06-21T12:05:00",event:"generated",topic:"The Spotlight Effect",note:"$2.23"},
-    {ts:"2026-06-21T10:30:00",event:"rejected",topic:"Anchoring Bias",note:"visuals weak"},
-    {ts:"2026-06-20T18:00:00",event:"generated",topic:"Dunning-Kruger",note:"$2.18"},
-  ]
-};
+const DATA_REPO = 'mcgillesdorce/openclaw-dashboard';
+const DATA_BRANCH = 'data';
 
-function fmt(n){return n==null?"—":Number(n).toLocaleString()}
-function money(n){return n==null?"$—":"$"+Number(n).toFixed(2)}
+// State
+let dashboardData = null;
+let billingData = null;
+let creditsData = null;
 
-async function load(){
-  let data,live=false;
-  try{
-    const url=window.__DATA_URL__||"dashboard_data.json";
-    const r=await fetch(url,{cache:"no-store"});
-    if(r.ok){data=await r.json();live=true;}
-  }catch(e){}
-  if(!data)data=SAMPLE;
-  render(data,live);
+// Fetch data from GitHub
+async function fetchData(file) {
+  try {
+    const url = `https://raw.githubusercontent.com/${DATA_REPO}/${DATA_BRANCH}/${file}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error(`Failed to fetch ${file}:`, err);
+    return null;
+  }
 }
 
-function render(d,live){
-  document.getElementById("src").textContent=live?"live · "+d.updated?.replace("T"," "):"sample data";
-  document.getElementById("navUpdated").textContent=live?"live":"demo";
+// Update all data
+async function updateDashboard() {
+  const [dashboard, billing, credits] = await Promise.all([
+    fetchData('dashboard_data.json'),
+    fetchData('billing_data.json'),
+    fetchData('credits_data.json')
+  ]);
 
-  const k=d.kpis||{};
-  const cpv=k.total_cost_usd&&k.videos_total?k.total_cost_usd/k.videos_total:null;
-  document.getElementById("cpa").textContent=k.cost_per_approved_usd!=null?Number(k.cost_per_approved_usd).toFixed(2):"—";
-  document.getElementById("cpg").textContent=cpv!=null?cpv.toFixed(2):"—";
-  document.getElementById("approvalMeter").style.width=(k.approval_rate_pct||0)+"%";
-  document.getElementById("approvalNote").textContent=(k.approval_rate_pct||0).toFixed(1)+"%";
-  document.getElementById("approvedCount").textContent=fmt(k.videos_approved);
-  document.getElementById("totalCount").textContent=fmt(k.videos_total);
+  dashboardData = dashboard;
+  billingData = billing;
+  creditsData = credits;
 
-  // Status
-  const st=d.pipeline_status||"idle";
-  const dot=document.getElementById("statusDot");
-  dot.className="status-dot "+(st==="running"?"live":st==="error"?"error":"idle");
-  document.getElementById("statusText").textContent=st;
-  if(d.last_run)document.getElementById("lastRunNote").textContent="last run "+d.last_run.replace("T"," ");
+  // Update nav timestamp
+  const now = new Date();
+  document.getElementById('navUpdated').textContent = `updated: ${now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}`;
 
-  // KPI cards
-  const cards=[
-    {k:"Videos made",v:fmt(k.videos_total)},
-    {k:"Approved",v:fmt(k.videos_approved),d:(k.approval_rate_pct||0).toFixed(1)+"% rate"},
-    {k:"Total spend",v:money(k.total_cost_usd)},
-    {k:"Total views",v:fmt(k.total_views)},
-    {k:"Avg engagement",v:k.avg_engagement_pct!=null?(k.avg_engagement_pct.toFixed(1)+"%"):"—",
-      cls:k.avg_engagement_pct>=8?"delta-up":k.avg_engagement_pct>0?"delta-dn":""},
-    {k:"New follows",v:fmt(k.total_follows)},
-  ];
-  document.getElementById("kpis").innerHTML=cards.map(c=>
-    `<div class="kpi"><div class="k">${c.k}</div>
-     <div class="v mono ${c.cls||''}">${c.v}</div>${c.d?`<div class="d">${c.d}</div>`:""}</div>`).join("");
-
-  // Cost chart
-  drawLine(d.cost_trend||[]);
-
-  // Top videos
-  const tv=d.top_videos||[];
-  const maxV=Math.max(1,...tv.map(v=>v.views||0));
-  document.getElementById("topVideos").innerHTML=tv.length?tv.map(v=>
-    `<div class="bar">
-      <span class="name" title="${v.topic}">${v.topic}</span>
-      <span class="track"><i style="width:${(v.views||0)/maxV*100}%"></i></span>
-      <span class="num mono">${fmt(v.views)}</span>
-     </div>`).join(""):`<div class="empty">No posted videos yet</div>`;
-
-  // Topic leaderboard
-  const tl=d.topic_leaderboard||[];
-  const maxT=Math.max(1,...tl.map(t=>t.avg_views||0));
-  document.getElementById("topicBars").innerHTML=tl.length?tl.map(t=>
-    `<div class="bar">
-      <span class="name" title="${t.topic}">${t.topic}</span>
-      <span class="track"><i style="width:${(t.avg_views||0)/maxT*100}%"></i></span>
-      <span class="num mono">${fmt(t.avg_views)}</span>
-     </div>`).join(""):`<div class="empty">No performance data yet</div>`;
-
-  // Recent activity
-  const events={approved:"✅",rejected:"❌",generated:"🎬",posted:"📤",error:"⚠️"};
-  const recent=d.recent||[];
-  document.getElementById("recentList").innerHTML=recent.length?recent.map(r=>
-    `<div class="recent-row">
-      <span>${events[r.event]||"·"} <strong>${r.topic}</strong> <span class="topic-tag">${r.event}</span></span>
-      <span style="color:var(--muted);font-size:12px">${r.note||""}</span>
-      <span style="color:var(--faint);font-size:11px">${(r.ts||"").replace("T"," ").slice(0,16)}</span>
-     </div>`).join(""):`<div class="empty">No activity yet — run the pipeline</div>`;
+  renderMetrics();
+  renderTrend();
+  renderTopVideos();
+  renderTopics();
+  renderTimeline();
 }
 
-function drawLine(trend){
-  const canvas=document.getElementById("costChart");
-  const ctx=canvas.getContext("2d");
-  const dpr=window.devicePixelRatio||1;
-  const W=canvas.parentElement.clientWidth;
-  const H=120;
-  canvas.width=W*dpr;canvas.height=H*dpr;
-  canvas.style.width=W+"px";canvas.style.height=H+"px";
-  ctx.scale(dpr,dpr);
-  if(!trend.length){ctx.fillStyle="#4d6376";ctx.font="13px Inter";ctx.fillText("No spend data yet",W/2-60,H/2);return;}
-  const vals=trend.map(t=>t.cost||0);
-  const maxV=Math.max(...vals,0.01);
-  const pad={t:10,r:8,b:24,l:40};
-  const uw=(W-pad.l-pad.r)/(vals.length-1||1);
-  const uh=(H-pad.t-pad.b)/maxV;
-  // grid lines
-  ctx.strokeStyle="#243240";ctx.lineWidth=1;
-  [0,.5,1].forEach(f=>{
-    const y=H-pad.b-f*maxV*uh;
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
-    ctx.fillStyle="#4d6376";ctx.font="10px Inter";
-    ctx.fillText("$"+(f*maxV).toFixed(1),2,y+4);
+// Render KPI metrics
+function renderMetrics() {
+  if (!dashboardData) return;
+
+  const { videos, approval_rate, monthly_spend } = dashboardData;
+
+  // Cost per approved
+  const approved = videos.filter(v => v.approved).length;
+  const totalCost = videos.reduce((s, v) => s + (v.cost_usd || 0), 0);
+  const cpa = approved > 0 ? (totalCost / approved).toFixed(2) : '—';
+  document.getElementById('cpa').textContent = cpa;
+
+  // Approval rate
+  document.getElementById('approvalRate').textContent = (approval_rate * 100 || 0).toFixed(0);
+  document.getElementById('approvedCount').textContent = approved;
+  document.getElementById('totalCount').textContent = videos.length;
+
+  // Videos today
+  const today = videos.filter(v => v.date === new Date().toISOString().split('T')[0]).length;
+  document.getElementById('videoCount').textContent = today;
+  document.getElementById('videoNote').textContent = today === 1 ? '1 video' : `${today} videos`;
+
+  // Monthly spend
+  document.getElementById('monthlySpend').textContent = (monthly_spend || 0).toFixed(2);
+  document.getElementById('spendNote').textContent = `$10.00 budget`;
+
+  // Budget meter
+  const budgetUsed = ((monthly_spend || 0) / 10.0) * 100;
+  document.getElementById('budgetPct').textContent = budgetUsed.toFixed(0) + '%';
+  document.getElementById('budgetMeter').style.width = budgetUsed + '%';
+
+  // Credits
+  if (creditsData) {
+    const healthPct = (creditsData.total_remaining / creditsData.total_budget) * 100;
+    document.getElementById('creditHealth').textContent = healthPct.toFixed(0) + '%';
+    document.getElementById('creditMeter').style.width = healthPct + '%';
+  }
+
+  // Last run
+  const lastVideo = videos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+  if (lastVideo) {
+    const createdAt = new Date(lastVideo.created_at);
+    const timeAgo = formatTimeAgo(createdAt);
+    document.getElementById('lastRunNote').textContent = `Last video: ${timeAgo}`;
+  }
+
+  // Last sync
+  const syncTime = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+  document.getElementById('lastSync').textContent = syncTime;
+}
+
+// Render cost trend chart
+function renderTrend() {
+  if (!dashboardData) return;
+
+  const ctx = document.getElementById('costChart').getContext('2d');
+  const dailyCosts = aggregateDailyCosts(dashboardData.videos);
+  
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dailyCosts.map(d => d.date),
+      datasets: [{
+        label: 'Daily Spend',
+        data: dailyCosts.map(d => d.cost),
+        borderColor: '#00d9ff',
+        backgroundColor: 'rgba(0, 217, 255, 0.05)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: '#00d9ff',
+        pointBorderColor: '#0a0e27',
+        pointBorderWidth: 2,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(10, 14, 39, 0.9)',
+          titleColor: '#00d9ff',
+          bodyColor: '#e8eaed',
+          borderColor: '#00d9ff',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 12,
+          callbacks: {
+            label: ctx => `$${ctx.raw.toFixed(2)}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: { color: '#6f7684', callback: v => '$' + v.toFixed(1) },
+          grid: { color: 'rgba(37, 45, 74, 0.5)' },
+          beginAtZero: true
+        },
+        x: {
+          ticks: { color: '#6f7684' },
+          grid: { display: false }
+        }
+      }
+    }
   });
-  // area
-  const pts=vals.map((v,i)=>({x:pad.l+i*uw,y:H-pad.b-v*uh}));
-  ctx.beginPath();ctx.moveTo(pts[0].x,H-pad.b);
-  pts.forEach(p=>ctx.lineTo(p.x,p.y));
-  ctx.lineTo(pts[pts.length-1].x,H-pad.b);ctx.closePath();
-  ctx.fillStyle="rgba(52,224,196,.08)";ctx.fill();
-  // line
-  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
-  pts.forEach(p=>ctx.lineTo(p.x,p.y));
-  ctx.strokeStyle="#34e0c4";ctx.lineWidth=2;ctx.stroke();
-  // dots
-  pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle="#34e0c4";ctx.fill();});
-  // x labels (every ~4)
-  const step=Math.max(1,Math.round(trend.length/6));
-  ctx.fillStyle="#4d6376";ctx.font="10px Inter";ctx.textAlign="center";
-  trend.forEach((t,i)=>{if(i%step===0)ctx.fillText(t.date||"",pad.l+i*uw,H-6);});
 }
 
-load();
-window.addEventListener("resize",()=>load());
+// Render top videos bar chart
+function renderTopVideos() {
+  if (!dashboardData || !dashboardData.videos.length) return;
+
+  const topVideos = dashboardData.videos
+    .sort((a, b) => (b.views || 0) - (a.views || 0))
+    .slice(0, 8);
+
+  const html = topVideos.map((v, i) => `
+    <div style="display: grid; grid-template-columns: 24px 1fr 80px; gap: var(--gap-md); align-items: center; padding: var(--gap-md) 0; border-bottom: 1px solid var(--border);">
+      <div style="font-weight: 700; color: var(--cyan);">#${i + 1}</div>
+      <div>
+        <div style="color: var(--text-primary); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${v.topic || 'Untitled'}</div>
+        <div style="font-size: 12px; color: var(--text-muted);">${v.status}</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="color: var(--cyan); font-weight: 700; font-family: 'Monaco', monospace;">${(v.views || 0).toLocaleString()}</div>
+        <div style="font-size: 11px; color: var(--text-muted);">views</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('topVideos').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No videos yet</div></div>';
+}
+
+// Render topic leaderboard
+function renderTopics() {
+  if (!dashboardData || !dashboardData.videos.length) return;
+
+  const topicMap = {};
+  dashboardData.videos.forEach(v => {
+    const topic = v.topic || 'Unknown';
+    topicMap[topic] = (topicMap[topic] || 0) + 1;
+  });
+
+  const sorted = Object.entries(topicMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+
+  const maxCount = Math.max(...sorted.map(s => s[1]));
+
+  const html = sorted.map(([topic, count]) => `
+    <div style="display: grid; grid-template-columns: 1fr auto; gap: var(--gap-lg); align-items: center; padding: var(--gap-md) 0; border-bottom: 1px solid var(--border);">
+      <div>
+        <div style="color: var(--text-primary); font-weight: 600; margin-bottom: var(--gap-xs);">${topic}</div>
+        <div style="height: 4px; background: var(--border); border-radius: var(--radius-full); overflow: hidden;">
+          <div style="height: 100%; background: linear-gradient(90deg, #00d9ff, #a855f7); width: ${(count / maxCount) * 100}%; border-radius: var(--radius-full);"></div>
+        </div>
+      </div>
+      <div style="text-align: right; font-weight: 700; color: var(--cyan); font-family: 'Monaco', monospace;">${count}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('topicBars').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No topics yet</div></div>';
+}
+
+// Render recent activity timeline
+function renderTimeline() {
+  if (!dashboardData || !dashboardData.videos.length) return;
+
+  const recent = dashboardData.videos
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 10);
+
+  const html = recent.map(v => {
+    const icon = v.status === 'approved' ? '✅' : v.status === 'rejected' ? '❌' : '⏳';
+    const time = formatTimeAgo(new Date(v.created_at));
+    return `
+      <div class="event">
+        <div class="event-icon">${icon}</div>
+        <div class="event-time">${time}</div>
+        <div class="event-agent">${v.topic || 'Video'}</div>
+        <div class="event-desc" style="color: var(--text-secondary);">${v.status}</div>
+        <div class="event-cost">$${(v.cost_usd || 0).toFixed(2)}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('recentTimeline').innerHTML = html;
+}
+
+// Helpers
+function aggregateDailyCosts(videos) {
+  const map = {};
+  videos.forEach(v => {
+    const date = v.date || v.created_at.split('T')[0];
+    map[date] = (map[date] || 0) + (v.cost_usd || 0);
+  });
+  return Object.entries(map)
+    .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+    .slice(-14) // Last 14 days
+    .map(([date, cost]) => ({ date: formatDate(date), cost }));
+}
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return (date.getMonth() + 1) + '/' + date.getDate();
+}
+
+function formatTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return minutes + 'm ago';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + 'h ago';
+  const days = Math.floor(hours / 24);
+  return days + 'd ago';
+}
+
+// Auto-refresh
+setInterval(updateDashboard, 30000); // Every 30 seconds
+updateDashboard();
 </script>
 </body>
 </html>
