@@ -1,10 +1,10 @@
 {
-  "updated": "2026-06-22T09:44:54",
+  "updated": "2026-06-22T10:57:42",
   "current_period": "2026-06",
-  "month_total": 24.13,
+  "month_total": 112.7,
   "month_budget": 275.0,
-  "month_pct_of_budget": 8.8,
-  "all_time_total": 503.53,
+  "month_pct_of_budget": 41.0,
+  "all_time_total": 592.1,
   "services": [
     {
       "service": "fal",
@@ -26,12 +26,12 @@
     },
     {
       "service": "anthropic",
-      "spent_this_period": 0.0,
-      "spent_all_time": 409.4,
+      "spent_this_period": 88.57,
+      "spent_all_time": 497.97,
       "budget": 25.0,
-      "pct_of_budget": 0.0,
+      "pct_of_budget": 354.3,
       "auto": 0.0,
-      "manual": 409.4
+      "manual": 497.97
     },
     {
       "service": "google",
@@ -64,7 +64,7 @@
   "trend": [
     {
       "period": "2026-06",
-      "total": 24.13
+      "total": 112.7
     },
     {
       "period": "all-time",
@@ -72,6 +72,15 @@
     }
   ],
   "recent": [
+    {
+      "service": "anthropic",
+      "amount": 88.57,
+      "kind": "manual",
+      "note": "Correction: actual all-time spend 497.97 (was 409.40)",
+      "period": "2026-06",
+      "ts": "2026-06-22T10:13:17",
+      "video_id": null
+    },
     {
       "service": "anthropic",
       "amount": 409.4,
