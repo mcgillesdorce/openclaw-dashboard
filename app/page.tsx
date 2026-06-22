@@ -80,6 +80,7 @@ export default function Home() {
   }, []);
 
   // Use real data when available, else placeholders
+  // Data fetched from /api/data endpoint (server-side GitHub fetch)
   const monthlyBudget = billing?.month_budget ?? 10.0;
   const monthlySpend = billing?.month_total ?? 2.35;
   const monthlyPct = (monthlySpend / monthlyBudget) * 100;
