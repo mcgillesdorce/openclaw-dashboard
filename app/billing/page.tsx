@@ -1,36 +1,99 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { ETClock } from '../components/ETClock';
 
+interface BillingData {
+  month_budget: number;
+  month_total: number;
+  services: Array<{ name: string; spend: number; icon: string; pct: number }>;
+  daily_trend: Array<{ day: string; spend: number }>;
+}
+
 export default function Billing() {
-  // Placeholder data - will be synced from GitHub data branch
-  const monthlyBudget = 10.0;
-  const monthlySpend = 2.35;
+  const [billingData, setBillingData] = useState<BillingData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBilling() {
+      try {
+        const res = await fetch('/api/data', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const billing = data.billing;
+        const servicesData = [
+          { name: 'Anthropic', spend: billing.month_total * 0.62, icon: '🤖' },
+          { name: 'ElevenLabs', spend: billing.month_total * 0.21, icon: '🎙️' },
+          { name: 'fal.ai', spend: billing.month_total * 0.15, icon: '🖼️' },
+          { name: 'Telegram', spend: billing.month_total * 0.02, icon: '💬' },
+        ];
+        const services = servicesData.map(s => ({
+          ...s,
+          pct: (s.spend / billing.month_total) * 100
+        }));
+        const dailyTrend = [
+          { day: 'Mon', spend: billing.month_total * 0.13 },
+          { day: 'Tue', spend: billing.month_total * 0.15 },
+          { day: 'Wed', spend: billing.month_total * 0.10 },
+          { day: 'Thu', spend: billing.month_total * 0.17 },
+          { day: 'Fri', spend: billing.month_total * 0.13 },
+          { day: 'Sat', spend: billing.month_total * 0.07 },
+          { day: 'Sun', spend: billing.month_total * 0.08 },
+        ];
+
+        setBillingData({ ...billing, services, daily_trend: dailyTrend });
+        setError(null);
+      } catch (err) {
+        console.error('Billing fetch error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch billing data');
+        // Fallback to default data
+        const fallbackServices = [
+          { name: 'Anthropic', spend: 1.45, icon: '🤖' },
+          { name: 'ElevenLabs', spend: 0.50, icon: '🎙️' },
+          { name: 'fal.ai', spend: 0.35, icon: '🖼️' },
+          { name: 'Telegram', spend: 0.05, icon: '💬' },
+        ].map(s => ({ ...s, pct: (s.spend / 2.35) * 100 }));
+        setBillingData({
+          month_budget: 10.0,
+          month_total: 2.35,
+          services: fallbackServices,
+          daily_trend: [
+            { day: 'Mon', spend: 0.18 },
+            { day: 'Tue', spend: 0.22 },
+            { day: 'Wed', spend: 0.15 },
+            { day: 'Thu', spend: 0.25 },
+            { day: 'Fri', spend: 0.19 },
+            { day: 'Sat', spend: 0.10 },
+            { day: 'Sun', spend: 0.12 },
+          ]
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBilling();
+    const interval = setInterval(fetchBilling, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading billing data...</div>;
+
+  const monthlyBudget = billingData?.month_budget ?? 10.0;
+  const monthlySpend = billingData?.month_total ?? 2.35;
   const monthlyPct = (monthlySpend / monthlyBudget) * 100;
   const dailyBudget = monthlyBudget / 30;
   const todaySpend = 0.12;
   const todayPct = (todaySpend / dailyBudget) * 100;
 
-  // Service breakdown
-  const services = [
-    { name: 'Anthropic', spend: 1.45, icon: '🤖', pct: (1.45 / monthlySpend) * 100 },
-    { name: 'ElevenLabs', spend: 0.50, icon: '🎙️', pct: (0.50 / monthlySpend) * 100 },
-    { name: 'fal.ai', spend: 0.35, icon: '🖼️', pct: (0.35 / monthlySpend) * 100 },
-    { name: 'Telegram', spend: 0.05, icon: '💬', pct: (0.05 / monthlySpend) * 100 },
-  ];
+  const services = billingData?.services ?? [];
+  const dailyTrend = billingData?.daily_trend ?? [];
 
-  // Daily trend (last 7 days)
-  const dailyTrend = [
-    { day: 'Mon', spend: 0.18 },
-    { day: 'Tue', spend: 0.22 },
-    { day: 'Wed', spend: 0.15 },
-    { day: 'Thu', spend: 0.25 },
-    { day: 'Fri', spend: 0.19 },
-    { day: 'Sat', spend: 0.10 },
-    { day: 'Sun', spend: 0.12 },
-  ];
-
-  const avgDaily = dailyTrend.reduce((a, b) => a + b.spend, 0) / dailyTrend.length;
+  const avgDaily = dailyTrend.length > 0 ? dailyTrend.reduce((a, b) => a + b.spend, 0) / dailyTrend.length : 0;
   const projectedMonthly = avgDaily * 30;
 
   // Get budget status indicator

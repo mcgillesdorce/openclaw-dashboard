@@ -38,6 +38,8 @@ export default function ApprovalsPage() {
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterAgent, setFilterAgent] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('pending_approval');
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: string; message: string } | null>(null);
 
   useEffect(() => {
     fetchRecommendations();
@@ -63,6 +65,7 @@ export default function ApprovalsPage() {
   }
 
   async function handleApprove(id: string) {
+    setApprovingId(id);
     try {
       const res = await fetch('/api/recommendations/approve', {
         method: 'POST',
@@ -70,19 +73,28 @@ export default function ApprovalsPage() {
         body: JSON.stringify({ id, reason: 'Approved via dashboard' })
       });
       if (res.ok) {
-        alert('✅ Approved!');
+        setFeedback({ type: 'success', message: '✅ Recommendation approved!' });
+        setTimeout(() => setFeedback(null), 3000);
         await fetchRecommendations();
+      } else {
+        const msg = await res.text();
+        setFeedback({ type: 'error', message: '❌ Approval failed: ' + msg });
       }
     } catch (err) {
       console.error('Approval failed:', err);
-      alert('❌ Approval failed');
+      setFeedback({ type: 'error', message: '❌ Network error' });
+    } finally {
+      setApprovingId(null);
     }
   }
 
-  async function handleReject(id: string) {
-    const reason = prompt('Why are you rejecting this?');
-    if (!reason) return;
+  async function handleReject(id: string, reason?: string) {
+    if (!reason || !reason.trim()) {
+      setFeedback({ type: 'error', message: '⚠️ Please provide a reason' });
+      return;
+    }
     
+    setApprovingId(id);
     try {
       const res = await fetch('/api/recommendations/reject', {
         method: 'POST',
@@ -90,12 +102,18 @@ export default function ApprovalsPage() {
         body: JSON.stringify({ id, reason })
       });
       if (res.ok) {
-        alert('✅ Rejected!');
+        setFeedback({ type: 'success', message: '✅ Recommendation rejected!' });
+        setTimeout(() => setFeedback(null), 3000);
         await fetchRecommendations();
+      } else {
+        const msg = await res.text();
+        setFeedback({ type: 'error', message: '❌ Rejection failed: ' + msg });
       }
     } catch (err) {
       console.error('Rejection failed:', err);
-      alert('❌ Rejection failed');
+      setFeedback({ type: 'error', message: '❌ Network error' });
+    } finally {
+      setApprovingId(null);
     }
   }
 

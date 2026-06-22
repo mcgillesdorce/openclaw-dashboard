@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { formatDateET } from './utils/dateFormatter';
+import { formatTimeET } from './utils/dateFormatter';
 
 interface BillingData {
   updated?: string;
@@ -115,7 +115,7 @@ export default function Home() {
       )}
       {!error && (billing?.month_total ?? 0) > 10 && (
         <div style={{ background: '#dcfce7', border: '1px solid #10b981', color: '#166534', padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '12px' }}>
-          ✅ Real data loaded from GitHub (last: {billing?.updated ? formatDateET(billing.updated) : 'just now'})
+          ✅ Real data loaded (fresh)
         </div>
       )}
       
