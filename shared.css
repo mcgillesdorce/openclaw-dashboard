@@ -1,0 +1,120 @@
+/* shared.css — design system for Psyche Mission Control */
+:root{
+  --ink:#0c1116;--ink-2:#121a22;--panel:#161f29;--panel-2:#1c2733;
+  --line:#243240;--line-2:#2e3f50;
+  --text:#e6eef5;--muted:#7d93a6;--faint:#4d6376;
+  --cyan:#34e0c4;--cyan-dim:#1d7d70;--cyan-faint:#0e3d37;
+  --amber:#f5b14c;--amber-faint:#3d2c0f;
+  --red:#ef6b6b;--red-faint:#3d1515;
+  --green:#5fd68a;--green-faint:#0f3020;
+  --purple:#a78bfa;--blue:#60a5fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(1200px 600px at 75% -10%,#14202b 0%,transparent 60%),var(--ink);
+  color:var(--text);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+}
+.mono{font-family:"SF Mono","JetBrains Mono",ui-monospace,"Cascadia Code",monospace;font-variant-numeric:tabular-nums}
+
+/* ── Nav ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(12,17,22,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:0;padding:0 24px;
+}
+.nav-brand{font-size:15px;font-weight:700;color:var(--cyan);padding:14px 20px 14px 0;
+  border-right:1px solid var(--line);margin-right:8px;letter-spacing:-.01em;text-decoration:none}
+.nav-brand span{color:var(--muted);font-weight:400;font-size:13px}
+nav a.tab{padding:14px 16px;font-size:13px;font-weight:500;color:var(--muted);
+  text-decoration:none;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+nav a.tab:hover{color:var(--text)}
+nav a.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan);margin-left:auto;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.nav-status{color:var(--faint);font-size:11px;margin-right:10px}
+
+/* ── Layout ── */
+.page{max-width:1200px;margin:0 auto;padding:28px 24px 60px}
+.section{margin-bottom:32px}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ── Cards / Panel ── */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel-sm{padding:14px 16px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2-1{grid-template-columns:2fr 1fr}
+.g1-2{grid-template-columns:1fr 2fr}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}.g2-1,.g1-2{grid-template-columns:1fr}}
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* ── KPI Card ── */
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.kpi .v{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.kpi .d{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi .delta-up{color:var(--green)}
+.kpi .delta-dn{color:var(--red)}
+
+/* ── Stat row ── */
+.stat-row{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--line)}
+.stat-row:last-child{border-bottom:none}
+.stat-row .label{color:var(--muted);font-size:13px}
+.stat-row .val{font-size:14px;font-weight:600}
+
+/* ── Bar track ── */
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:160px 1fr 80px;align-items:center;gap:10px;font-size:13px}
+.bar .name{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .track{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar .track i{display:block;height:100%;background:var(--cyan);border-radius:3px;transition:width .4s}
+.bar .track i.amber{background:var(--amber)}
+.bar .track i.green{background:var(--green)}
+.bar .track i.red{background:var(--red)}
+.bar .track i.purple{background:var(--purple)}
+.bar .num{color:var(--muted);text-align:right;font-size:12px}
+
+/* ── Meter ── */
+.meter-wrap{background:var(--line);border-radius:4px;height:8px;overflow:hidden;margin:8px 0}
+.meter-fill{height:100%;border-radius:4px;transition:width .4s}
+.meter-cyan{background:var(--cyan)}
+.meter-amber{background:var(--amber)}
+.meter-red{background:var(--red)}
+.meter-green{background:var(--green)}
+
+/* ── Badge ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-faint);color:var(--green)}
+.badge-amber{background:var(--amber-faint);color:var(--amber)}
+.badge-red{background:var(--red-faint);color:var(--red)}
+.badge-cyan{background:var(--cyan-faint);color:var(--cyan)}
+.badge-muted{background:var(--line);color:var(--muted)}
+
+/* ── Table ── */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--faint);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+   padding:8px 12px;border-bottom:1px solid var(--line);text-align:left}
+td{padding:10px 12px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(52,224,196,.03)}
+
+/* ── Footer ── */
+.data-footer{color:var(--faint);font-size:11px;margin-top:8px;text-align:right}
+
+/* ── Empty state ── */
+.empty{color:var(--faint);font-size:13px;padding:24px;text-align:center;
+  border:1px dashed var(--line);border-radius:10px}
+
+/* ── Gauge ── */
+.gauge-big{font-size:48px;font-weight:800;color:var(--cyan);letter-spacing:-.03em}
+.gauge-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.gauge-sub{font-size:13px;color:var(--muted);margin-top:4px}
