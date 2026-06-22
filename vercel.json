@@ -3,7 +3,8 @@
   "rewrites": [
     { "source": "/analytics", "destination": "/analytics.html" },
     { "source": "/agents",    "destination": "/agents.html" },
-    { "source": "/billing",   "destination": "/billing.html" }
+    { "source": "/billing",   "destination": "/billing.html" },
+    { "source": "/tracker",  "destination": "/tracker.html" }
   ],
   "headers": [
     {
