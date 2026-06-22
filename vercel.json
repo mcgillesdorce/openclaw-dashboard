@@ -1,11 +1,14 @@
 {
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
-      ]
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "serverlessFunctionRegion": "sfo1",
+  "functions": {
+    "api/**": {
+      "memory": 1024,
+      "maxDuration": 30
     }
-  ]
+  }
 }
