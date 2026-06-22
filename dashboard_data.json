@@ -1,0 +1,33 @@
+{
+  "updated": "2026-06-22T15:43:24",
+  "kpis": {
+    "videos_total": 1,
+    "videos_approved": 0,
+    "videos_posted": 0,
+    "approval_rate_pct": 0.0,
+    "total_cost_usd": 2.23,
+    "cost_per_approved_usd": null,
+    "total_views": 0,
+    "avg_engagement_pct": 0.0,
+    "total_follows": 0
+  },
+  "cost_trend": [
+    {
+      "date": "2026-06-21",
+      "cost": 2.23
+    }
+  ],
+  "top_videos": [],
+  "topic_leaderboard": [],
+  "recent": [
+    {
+      "id": "20260621_183548_840227",
+      "topic": "The Zeigarnik Effect",
+      "status": "pending_review",
+      "cost": 2.23,
+      "rating": 0,
+      "views": null,
+      "generated_at": "2026-06-21T18:51:21"
+    }
+  ]
+}

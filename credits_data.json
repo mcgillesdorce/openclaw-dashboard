@@ -1,0 +1,53 @@
+{
+  "updated": "2026-06-22T16:37:00",
+  "services": [
+    {
+      "name": "anthropic",
+      "current_balance": 72.42,
+      "initial_balance": 600.0,
+      "spent_this_period": 88.57,
+      "spent_all_time": 530.21,
+      "monthly_burn_rate": 44.285,
+      "days_remaining": 8,
+      "estimated_runway_days": 13.5
+    },
+    {
+      "name": "fal",
+      "current_balance": 35.58,
+      "initial_balance": 100.0,
+      "spent_this_period": 2.0,
+      "spent_all_time": 72.0,
+      "monthly_burn_rate": 1.0,
+      "days_remaining": 8,
+      "estimated_runway_days": 35.58
+    },
+    {
+      "name": "elevenlabs",
+      "current_balance": 291054,
+      "unit": "characters",
+      "spent_this_period": 0.13,
+      "spent_all_time": 22.13,
+      "monthly_burn_rate": 0.065,
+      "plan": "Creator",
+      "renewal_date": "2026-07-22"
+    },
+    {
+      "name": "google",
+      "current_balance": 300.0,
+      "spent_this_period": 0.0,
+      "spent_all_time": 0.0,
+      "status": "active"
+    },
+    {
+      "name": "openclaw",
+      "status": "local_embedded",
+      "cost": "included"
+    }
+  ],
+  "summary": {
+    "total_liquid_balance_usd": 107.99,
+    "critical_balance": "anthropic",
+    "estimated_days_before_refresh": 13.5,
+    "recommendation": "Monitor Anthropic spend closely; refresh after month 1 completes"
+  }
+}
