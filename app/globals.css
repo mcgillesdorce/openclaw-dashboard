@@ -103,7 +103,7 @@ nav {
   align-items: baseline;
   gap: 8px;
   text-decoration: none;
-  color: var(--accent-cyan);
+  color: var(--accent-red);
   font-weight: 900;
   font-size: 18px;
   letter-spacing: -0.8px;
@@ -112,7 +112,7 @@ nav {
 }
 
 .nav-brand:hover {
-  text-shadow: 0 0 16px rgba(0, 217, 255, 0.5);
+  text-shadow: 0 0 16px rgba(204, 0, 51, 0.8);
 }
 
 .nav-brand span {
@@ -155,14 +155,14 @@ nav {
 }
 
 .nav-tab:hover {
-  color: var(--accent-cyan);
-  background: rgba(0, 217, 255, 0.08);
+  color: var(--accent-purple);
+  background: rgba(204, 0, 51, 0.08);
   border-radius: 4px;
 }
 
 .nav-tab.active {
-  color: var(--accent-cyan);
-  background: rgba(0, 217, 255, 0.12);
+  color: var(--accent-red);
+  background: rgba(204, 0, 51, 0.12);
   border-radius: 4px;
 }
 
@@ -173,7 +173,7 @@ nav {
   left: 16px;
   right: 16px;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-cyan), transparent);
+  background: linear-gradient(90deg, var(--accent-red), transparent);
   border-radius: 3px 3px 0 0;
 }
 
@@ -236,7 +236,7 @@ nav {
   content: '';
   width: 4px;
   height: 18px;
-  background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
+  background: linear-gradient(180deg, var(--accent-red), var(--accent-purple));
   border-radius: 2px;
 }
 
@@ -255,7 +255,7 @@ nav {
 
 .panel:hover {
   border-color: var(--border-light);
-  box-shadow: 0 0 32px rgba(0, 217, 255, 0.1);
+  box-shadow: 0 0 32px rgba(204, 0, 51, 0.15);
 }
 
 .stat-box {
@@ -276,14 +276,14 @@ nav {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent-cyan), transparent);
+  background: linear-gradient(90deg, var(--accent-red), transparent);
   opacity: 0;
   transition: opacity var(--trans-base);
 }
 
 .stat-box:hover {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 24px rgba(0, 217, 255, 0.15);
+  border-color: var(--accent-red);
+  box-shadow: 0 0 24px rgba(204, 0, 51, 0.2);
 }
 
 .stat-box:hover::before {
@@ -302,7 +302,7 @@ nav {
 .stat-value {
   font-size: 36px;
   font-weight: 900;
-  color: var(--accent-cyan);
+  color: var(--accent-red);
   font-family: 'Monaco', 'Courier New', monospace;
   line-height: 1;
   margin-bottom: 12px;
@@ -397,7 +397,7 @@ nav {
 }
 
 .text-cyan {
-  color: var(--accent-cyan);
+  color: var(--accent-red);
 }
 
 .text-green {
