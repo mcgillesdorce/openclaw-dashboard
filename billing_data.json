@@ -1,0 +1,90 @@
+{
+  "updated": "2026-06-22T01:02:29",
+  "current_period": "2026-06",
+  "month_total": 2.13,
+  "month_budget": 275.0,
+  "month_pct_of_budget": 0.8,
+  "all_time_total": 2.13,
+  "services": [
+    {
+      "service": "fal",
+      "spent_this_period": 2.0,
+      "spent_all_time": 2.0,
+      "budget": 200.0,
+      "pct_of_budget": 1.0,
+      "auto": 2.0,
+      "manual": 0.0
+    },
+    {
+      "service": "elevenlabs",
+      "spent_this_period": 0.13,
+      "spent_all_time": 0.13,
+      "budget": 30.0,
+      "pct_of_budget": 0.4,
+      "auto": 0.13,
+      "manual": 0.0
+    },
+    {
+      "service": "anthropic",
+      "spent_this_period": 0.0,
+      "spent_all_time": 0.0,
+      "budget": 25.0,
+      "pct_of_budget": 0.0,
+      "auto": 0.0,
+      "manual": 0.0
+    },
+    {
+      "service": "google",
+      "spent_this_period": 0.0,
+      "spent_all_time": 0.0,
+      "budget": 20.0,
+      "pct_of_budget": 0.0,
+      "auto": 0.0,
+      "manual": 0.0
+    },
+    {
+      "service": "openclaw",
+      "spent_this_period": 0.0,
+      "spent_all_time": 0.0,
+      "budget": 0.0,
+      "pct_of_budget": null,
+      "auto": 0.0,
+      "manual": 0.0
+    },
+    {
+      "service": "other",
+      "spent_this_period": 0.0,
+      "spent_all_time": 0.0,
+      "budget": null,
+      "pct_of_budget": null,
+      "auto": 0.0,
+      "manual": 0.0
+    }
+  ],
+  "trend": [
+    {
+      "period": "2026-06",
+      "total": 2.13
+    }
+  ],
+  "recent": [
+    {
+      "service": "fal",
+      "amount": 2.0,
+      "kind": "auto",
+      "note": "The Zeigarnik Effect",
+      "period": "2026-06",
+      "ts": "2026-06-21T18:51:21",
+      "video_id": "20260621_183548_840227"
+    },
+    {
+      "service": "elevenlabs",
+      "amount": 0.13,
+      "kind": "auto",
+      "note": "The Zeigarnik Effect",
+      "period": "2026-06",
+      "ts": "2026-06-21T18:51:21",
+      "video_id": "20260621_183548_840227"
+    }
+  ]
+}
