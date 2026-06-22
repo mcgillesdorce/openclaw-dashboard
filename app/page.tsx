@@ -1,16 +1,87 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
+interface BillingData {
+  current_period: string;
+  month_total: number;
+  month_budget: number;
+  month_pct_of_budget: number;
+}
+
+interface DashboardData {
+  kpis: {
+    videos_total: number;
+    videos_approved: number;
+    approval_rate_pct: number;
+    total_cost_usd: number;
+    cost_per_approved_usd: number | null;
+  };
+}
+
 export default function Home() {
-  // Placeholder metrics - synced from GitHub data branch
-  const monthlyBudget = 10.0;
-  const monthlySpend = 2.35;
+  const [billing, setBilling] = useState<BillingData | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [billingRes, dashboardRes] = await Promise.all([
+          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/data/billing_data.json'),
+          fetch('https://raw.githubusercontent.com/mcgillesdorce/openclaw-dashboard/data/data/dashboard_data.json')
+        ]);
+
+        if (!billingRes.ok || !dashboardRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const billingData = await billingRes.json();
+        const dashboardData = await dashboardRes.json();
+
+        setBilling(billingData);
+        setDashboard(dashboardData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        // Fallback to placeholder data on error
+        setBilling({
+          current_period: '2026-06',
+          month_total: 2.35,
+          month_budget: 10.0,
+          month_pct_of_budget: 23.5
+        });
+        setDashboard({
+          kpis: {
+            videos_total: 1,
+            videos_approved: 0,
+            approval_rate_pct: 0,
+            total_cost_usd: 2.23,
+            cost_per_approved_usd: null
+          }
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+    // Refresh every 30 seconds for live updates
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Use real data when available, else placeholders
+  const monthlyBudget = billing?.month_budget ?? 10.0;
+  const monthlySpend = billing?.month_total ?? 2.35;
   const monthlyPct = (monthlySpend / monthlyBudget) * 100;
-  const costPerVideo = monthlySpend > 0 ? (monthlySpend / 3).toFixed(2) : '—';
-  const videosApproved = 3;
-  const videosGenerated = 7;
-  const approvalRate = videosApproved > 0 ? ((videosApproved / videosGenerated) * 100).toFixed(1) : '—';
-  const videosToday = 1;
-  const costToday = 0.12;
+  
+  const videosTotal = dashboard?.kpis.videos_total ?? 1;
+  const videosApproved = dashboard?.kpis.videos_approved ?? 0;
+  const approvalRate = dashboard?.kpis.approval_rate_pct ?? 0;
+  const costPerVideo = dashboard?.kpis.total_cost_usd && videosTotal > 0
+    ? (dashboard.kpis.total_cost_usd / videosTotal).toFixed(2)
+    : '—';
 
   // Get budget status
   const getBudgetStatus = () => {
@@ -61,7 +132,7 @@ export default function Home() {
           <div className="stat-value">
             {approvalRate}%
           </div>
-          <div className="stat-note">{videosApproved}/{videosGenerated} approved</div>
+          <div className="stat-note">{videosApproved}/{videosTotal} approved</div>
         </div>
       </div>
 
