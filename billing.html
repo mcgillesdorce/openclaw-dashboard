@@ -42,8 +42,13 @@
   <!-- Hero: total spend -->
   <div class="grid g2-1 section">
     <div class="panel total-hero">
-      <div class="total-num mono">$<span id="monthTotal">—</span></div>
-      <div class="total-label">spent this month · budget $<span id="monthBudget">—</span></div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);margin-bottom:4px">All-time total spend</div>
+      <div class="total-num mono" style="color:var(--amber)">$<span id="allTimeTotal">—</span></div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);margin-bottom:4px">This month</div>
+        <div style="font-size:32px;font-weight:700;color:var(--text)" class="mono">$<span id="monthTotal">—</span></div>
+      </div>
+      <div class="total-label">budget $<span id="monthBudget">—</span></div>
       <div style="margin:16px auto 0;max-width:300px">
         <div class="meter-wrap"><div class="meter-fill meter-cyan" id="budgetMeter" style="width:0"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:4px">
@@ -172,6 +177,7 @@ function render(d,live){
   document.getElementById("navUpdated").textContent=live?"live":"demo";
 
   // Hero
+  document.getElementById("allTimeTotal").textContent=Number(d.all_time_total||0).toFixed(2);
   document.getElementById("monthTotal").textContent=Number(d.month_total||0).toFixed(2);
   document.getElementById("monthBudget").textContent=Number(d.month_budget||0).toFixed(0);
   const pct=Math.min(100,d.month_pct_of_budget||0);
@@ -185,7 +191,7 @@ function render(d,live){
   const autoSum=(d.services||[]).reduce((a,s)=>a+(s.auto||0),0);
   const manSum=(d.services||[]).reduce((a,s)=>a+(s.manual||0),0);
   document.getElementById("billKpis").innerHTML=[
-    {k:"All-time total",v:money(d.all_time_total)},
+    {k:"All-time total",v:money(d.all_time_total),big:true},
     {k:"Period",v:fmtPeriod(d.current_period)||"—"},
     {k:"Auto-logged",v:money(autoSum),d:"measured by pipeline"},
     {k:"Manually entered",v:money(manSum),d:"from provider bills"},
