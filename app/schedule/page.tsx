@@ -1,8 +1,5 @@
 'use client';
 
-// Revalidate every 30 seconds
-export const revalidate = 30;
-
 const STATIC_SCHEDULE = [
   { time: '08:00', ampm: 'AM', agent: 'Finch', icon: '💰', task: 'Morning cost analysis' },
   { time: '10:00', ampm: 'AM', agent: 'Scout', icon: '📖', task: 'Topic research & trends' },
