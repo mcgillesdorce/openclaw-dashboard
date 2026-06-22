@@ -2,271 +2,303 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signal — Billing</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Psyche — Billing</title>
+<link rel="stylesheet" href="shared.css">
 <style>
-  :root{
-    --ink:#0c1116; --ink-2:#121a22; --panel:#161f29; --line:#243240;
-    --text:#e6eef5; --muted:#7d93a6; --faint:#4d6376;
-    --cyan:#34e0c4; --cyan-dim:#1d7d70; --amber:#f5b14c; --red:#ef6b6b;
-    --green:#5fd68a;
+  .service-row{display:grid;grid-template-columns:32px 1fr 90px 90px 110px 80px;
+    align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .service-row:last-child{border-bottom:none}
+  .svc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .svc-name{font-size:14px;font-weight:600}
+  .svc-model{font-size:11px;color:var(--muted)}
+  .bar-inline{height:6px;background:var(--line);border-radius:3px;overflow:hidden;width:100%;max-width:200px;margin-top:4px}
+  .bar-fill{height:100%;border-radius:3px}
+  .cost-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  @media(max-width:700px){
+    .service-row{grid-template-columns:32px 1fr 80px 80px;gap:8px}
+    .service-row .hide-sm{display:none}
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    background:
-      radial-gradient(1200px 600px at 75% -10%, #14202b 0%, transparent 60%),
-      var(--ink);
-    color:var(--text);
-    font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-    -webkit-font-smoothing:antialiased; line-height:1.45; padding:28px;
-    min-height:100vh;
-  }
-  .mono{font-family:"SF Mono","JetBrains Mono",ui-monospace,"Cascadia Code",monospace;
-    font-variant-numeric:tabular-nums;}
-  header{display:flex;align-items:baseline;justify-content:space-between;
-    gap:16px;flex-wrap:wrap;margin-bottom:24px;border-bottom:1px solid var(--line);
-    padding-bottom:18px;}
-  .brand{display:flex;align-items:baseline;gap:14px}
-  .brand h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
-  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);
-    box-shadow:0 0 12px var(--amber);align-self:center;
-    animation:pulse 2.4s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .brand .sub{color:var(--muted);font-size:13px}
-  .tabs{display:flex;gap:6px;margin-bottom:20px}
-  .tab{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:500;
-    color:var(--muted);background:var(--panel);border:1px solid var(--line);
-    text-decoration:none}
-  .tab.active{color:var(--ink);background:var(--amber);border-color:var(--amber)}
-  header .updated{color:var(--faint);font-size:12px}
-  header .src{font-size:11px;color:var(--faint);margin-top:3px}
-
-  .top{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:18px;
-    margin-bottom:18px}
-  @media(max-width:840px){.top{grid-template-columns:1fr}}
-
-  /* signature gauge: the month's burn against budget */
-  .gauge{background:linear-gradient(180deg,var(--ink-2),var(--panel));
-    border:1px solid var(--line);border-radius:16px;padding:24px;position:relative}
-  .gauge .label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;
-    color:var(--muted)}
-  .gauge .big{font-size:52px;font-weight:600;letter-spacing:-.02em;margin-top:8px;
-    color:var(--amber);line-height:1}
-  .gauge .big .cur{font-size:26px;color:#a9762a;vertical-align:top;margin-right:2px}
-  .gauge .vs{margin-top:14px;font-size:13px;color:var(--muted)}
-  .gauge .vs b{color:var(--text)}
-  .gauge .meter{margin-top:16px;height:8px;background:var(--ink);border-radius:4px;
-    overflow:hidden}
-  .gauge .meter i{display:block;height:100%;
-    background:linear-gradient(90deg,var(--cyan-dim),var(--amber))}
-  .gauge .note{margin-top:10px;font-size:12px;color:var(--faint)}
-
-  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:16px}
-  .kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-  .kpi .v{font-size:26px;font-weight:600;margin-top:6px}
-  .kpi .d{font-size:12px;margin-top:4px;color:var(--faint)}
-
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:18px;margin-bottom:18px}
-  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;
-    color:var(--muted);margin-bottom:16px;font-weight:600}
-
-  /* per-service rows with budget bars */
-  .svc{display:grid;grid-template-columns:130px 1fr 150px;align-items:center;
-    gap:14px;padding:11px 0;border-bottom:1px solid var(--ink-2)}
-  .svc:last-child{border-bottom:none}
-  .svc .name{font-size:14px;font-weight:500;text-transform:capitalize}
-  .svc .name small{display:block;color:var(--faint);font-size:11px;
-    text-transform:none;font-weight:400;margin-top:2px}
-  .svc .track{height:9px;background:var(--ink);border-radius:5px;overflow:hidden;
-    position:relative}
-  .svc .track i{display:block;height:100%;border-radius:5px;
-    background:linear-gradient(90deg,var(--cyan-dim),var(--cyan))}
-  .svc .track i.over{background:linear-gradient(90deg,var(--amber),var(--red))}
-  .svc .amt{text-align:right;font-size:14px}
-  .svc .amt .b{color:var(--faint);font-size:12px}
-
-  svg{display:block;width:100%;overflow:visible}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;
-    text-transform:uppercase;letter-spacing:.08em;padding:8px 10px;
-    border-bottom:1px solid var(--line)}
-  td{padding:9px 10px;border-bottom:1px solid var(--ink-2)}
-  tr:last-child td{border-bottom:none}
-  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px}
-  .pill.auto{background:rgba(52,224,196,.12);color:var(--cyan)}
-  .pill.manual{background:rgba(245,177,76,.12);color:var(--amber)}
-  .r{text-align:right} .muted{color:var(--muted)}
-  .empty{color:var(--faint);font-size:13px;padding:24px;text-align:center}
-  .hint{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.5}
+  .total-hero{text-align:center;padding:32px}
+  .total-num{font-size:64px;font-weight:800;color:var(--text);letter-spacing:-.04em;line-height:1}
+  .total-label{font-size:13px;color:var(--muted);margin-top:8px}
+  .roi-row{display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .roi-row:last-child{border-bottom:none}
 </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <span class="dot"></span>
-      <h1>Signal</h1>
-      <span class="sub">total spend across all services</span>
+<nav>
+  <a class="nav-brand" href="/">Psyche <span>Mission Control</span></a>
+  <a class="tab" href="/">Overview</a>
+  <a class="tab" href="/analytics">Analytics</a>
+  <a class="tab" href="/agents">Agents</a>
+  <a class="tab active" href="/billing">Billing</a>
+  <span class="nav-status" id="navUpdated"></span>
+  <div class="nav-dot"></div>
+</nav>
+<div class="page">
+
+  <!-- Hero: total spend -->
+  <div class="grid g2-1 section">
+    <div class="panel total-hero">
+      <div class="total-num mono">$<span id="monthTotal">—</span></div>
+      <div class="total-label">spent this month · budget $<span id="monthBudget">—</span></div>
+      <div style="margin:16px auto 0;max-width:300px">
+        <div class="meter-wrap"><div class="meter-fill meter-cyan" id="budgetMeter" style="width:0"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:4px">
+          <span id="budgetPct">0%</span><span>of monthly budget</span>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="display:flex;flex-direction:column;justify-content:space-between">
+      <div id="billKpis"></div>
+    </div>
+  </div>
+
+  <!-- Per-service breakdown -->
+  <div class="section">
+    <div class="section-title">Breakdown by Service — This Month</div>
+    <div class="panel">
+      <div style="display:grid;grid-template-columns:32px 1fr 90px 90px 110px 80px;gap:12px;
+          padding-bottom:10px;border-bottom:1px solid var(--line);
+          font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em">
+        <span></span><span>Service</span><span>This month</span><span>All time</span>
+        <span>Budget</span><span>% used</span>
+      </div>
+      <div id="serviceList"></div>
+    </div>
+  </div>
+
+  <!-- Spend trend -->
+  <div class="section">
+    <div class="section-title">Monthly Spend Trend</div>
+    <div class="panel"><canvas id="trendChart" height="140" style="width:100%"></canvas></div>
+  </div>
+
+  <!-- Cost breakdown + ROI -->
+  <div class="grid g2 section">
+    <div>
+      <div class="section-title">Per-Video Cost Breakdown</div>
+      <div class="panel" id="perVideoCosts"></div>
     </div>
     <div>
-      <div class="updated mono" id="updated">—</div>
-      <div class="src" id="src"></div>
+      <div class="section-title">ROI Metrics</div>
+      <div class="panel" id="roiPanel"></div>
     </div>
-  </header>
+  </div>
 
-  <nav class="tabs">
-    <a class="tab" href="dashboard.html">Performance</a>
-    <a class="tab active" href="billing.html">Billing</a>
-  </nav>
-
-  <section class="top">
-    <div class="gauge">
-      <div class="label" id="periodLabel">This month</div>
-      <div class="big mono"><span class="cur">$</span><span id="monthTotal">—</span></div>
-      <div class="vs">of <b class="mono" id="monthBudget">$—</b> monthly budget</div>
-      <div class="meter"><i id="budgetMeter" style="width:0%"></i></div>
-      <div class="note"><span class="mono" id="budgetPct">—</span> of budget used ·
-        all-time <span class="mono" id="allTime">$—</span></div>
-    </div>
-    <div class="kpis" id="kpis"></div>
-  </section>
-
-  <section class="card">
-    <h2>Spend by service · this month</h2>
-    <div id="services"></div>
-    <div class="hint">Blue = auto-logged by the pipeline. The Anthropic line usually
-      needs a manual entry to capture Psyche's heartbeat usage — enter the real bill
-      from your provider dashboards each month with
-      <span class="mono">log_monthly_bill("anthropic", 11.40)</span>.</div>
-  </section>
-
-  <section class="card">
-    <h2>Total spend trend</h2>
-    <svg id="trendChart" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
-  </section>
-
-  <section class="card">
-    <h2>Recent charges</h2>
-    <div style="overflow-x:auto">
-      <table id="recentTable">
+  <!-- Recent transactions -->
+  <div class="section">
+    <div class="section-title">Recent Charges</div>
+    <div class="panel panel-sm" style="overflow-x:auto">
+      <table>
         <thead><tr>
-          <th>Service</th><th>Type</th><th>Note</th>
-          <th class="r">Amount</th><th>When</th>
+          <th>Service</th><th>Amount</th><th>Type</th><th>Video / Note</th><th>Date</th>
         </tr></thead>
-        <tbody></tbody>
+        <tbody id="recentTable"></tbody>
       </table>
     </div>
-  </section>
+  </div>
+
+  <div class="data-footer">source: <span id="src">—</span></div>
+</div>
 
 <script src="config.js"></script>
 <script>
-const SAMPLE = {
-  updated:new Date().toISOString().slice(0,19), current_period:"2026-06",
-  month_total:65.18, month_budget:275, month_pct_of_budget:23.7, all_time_total:65.18,
+const SVC_META={
+  fal:{icon:"🎬",label:"fal.ai (Seedance)",color:"#34e0c4",note:"Video generation · ~$0.10/clip"},
+  elevenlabs:{icon:"🎙️",label:"ElevenLabs",color:"#f5b14c",note:"TTS voiceover · ~$0.13/video"},
+  anthropic:{icon:"🧠",label:"Anthropic (Claude)",color:"#a78bfa",note:"Scripts + orchestration"},
+  google:{icon:"☁️",label:"Google Cloud",color:"#60a5fa",note:"Drive storage · free tier"},
+  openclaw:{icon:"⚙️",label:"OpenClaw",color:"#7d93a6",note:"Platform"},
+  vercel:{icon:"▲",label:"Vercel",color:"#ffffff",note:"Dashboard hosting · free tier"},
+};
+
+const SAMPLE_BILLING={
+  updated:new Date().toISOString().slice(0,19),current_period:"2026-06",
+  month_total:65.18,month_budget:275,month_pct_of_budget:23.7,all_time_total:65.18,
   services:[
-    {service:"fal",spent_this_period:50.44,budget:200,pct_of_budget:25.2,auto:50.44,manual:0},
-    {service:"elevenlabs",spent_this_period:3.25,budget:30,pct_of_budget:10.8,auto:3.25,manual:0},
-    {service:"anthropic",spent_this_period:11.49,budget:25,pct_of_budget:46,auto:0.09,manual:11.40},
-    {service:"google",spent_this_period:0,budget:20,pct_of_budget:0,auto:0,manual:0},
-    {service:"openclaw",spent_this_period:0,budget:0,pct_of_budget:null,auto:0,manual:0},
+    {service:"fal",spent_this_period:50.44,spent_all_time:50.44,budget:200,pct_of_budget:25.2,auto:50.44,manual:0},
+    {service:"anthropic",spent_this_period:11.49,spent_all_time:11.49,budget:25,pct_of_budget:46,auto:0.09,manual:11.40},
+    {service:"elevenlabs",spent_this_period:3.25,spent_all_time:3.25,budget:30,pct_of_budget:10.8,auto:3.25,manual:0},
+    {service:"google",spent_this_period:0,spent_all_time:0,budget:20,pct_of_budget:0,auto:0,manual:0},
+    {service:"openclaw",spent_this_period:0,spent_all_time:0,budget:0,pct_of_budget:null,auto:0,manual:0},
+    {service:"vercel",spent_this_period:0,spent_all_time:0,budget:0,pct_of_budget:null,auto:0,manual:0},
   ],
-  trend:[{period:"2026-06",total:65.18}],
+  per_video:{fal:2.00,elevenlabs:0.13,anthropic:0.003,total:2.133},
+  roi:{videos_approved:25,total_spend:65.18,cost_per_approved:2.61,
+    total_views:307300,total_follows:1223,
+    cost_per_1k_views:0.21,cost_per_follow:0.053,
+    roi_note:"No revenue tracked yet — add TikTok monetisation data"},
+  trend:[
+    {period:"2026-06",total:65.18}
+  ],
   recent:[
-    {service:"anthropic",amount:11.40,kind:"manual",note:"June bill from console",period:"2026-06",ts:"2026-06-21T13:00:00"},
+    {service:"anthropic",amount:11.40,kind:"manual",note:"June bill · console.anthropic.com",period:"2026-06",ts:"2026-06-21T13:00:00"},
     {service:"fal",amount:2.10,kind:"auto",note:"seedance generation",period:"2026-06",ts:"2026-06-21T02:14:00",video_id:"vid_a1b2c3"},
     {service:"elevenlabs",amount:0.14,kind:"auto",note:"voiceover",period:"2026-06",ts:"2026-06-21T02:14:00",video_id:"vid_a1b2c3"},
-  ],
+    {service:"fal",amount:2.22,kind:"auto",note:"seedance generation",period:"2026-06",ts:"2026-06-20T21:30:00"},
+    {service:"elevenlabs",amount:0.13,kind:"auto",note:"voiceover",period:"2026-06",ts:"2026-06-20T21:30:00"},
+  ]
 };
 
 function money(n){return n==null?"$—":"$"+Number(n).toFixed(2)}
+function moneyFull(n){return n==null?"$—":"$"+Number(n).toFixed(n<1?4:2)}
+function fmt(n){return n==null?"—":Number(n).toLocaleString()}
 function fmtPeriod(p){if(!p)return"";const[y,m]=p.split("-");
-  return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1]+" "+y}
+  return["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1]+" "+y}
 
 async function load(){
   let data,live=false;
-  try{const url=window.__BILLING_URL__||"billing_data.json";
+  try{
+    const url=window.__BILLING_URL__||"billing_data.json";
     const r=await fetch(url,{cache:"no-store"});
-    if(r.ok){data=await r.json();live=true;}}catch(e){}
-  if(!data)data=SAMPLE;
+    if(r.ok){data=await r.json();live=true;}
+  }catch(e){}
+  if(!data)data=SAMPLE_BILLING;
   render(data,live);
 }
 
 function render(d,live){
-  document.getElementById("updated").textContent="updated "+(d.updated||"").replace("T"," ");
-  document.getElementById("src").textContent=live?"live data":"sample data — point at your billing_data.json";
-  document.getElementById("periodLabel").textContent=fmtPeriod(d.current_period)+" spend";
+  document.getElementById("src").textContent=live?"live · "+d.updated?.replace("T"," "):"sample data";
+  document.getElementById("navUpdated").textContent=live?"live":"demo";
+
+  // Hero
   document.getElementById("monthTotal").textContent=Number(d.month_total||0).toFixed(2);
-  document.getElementById("monthBudget").textContent=money(d.month_budget);
-  document.getElementById("budgetMeter").style.width=Math.min(100,d.month_pct_of_budget||0)+"%";
-  document.getElementById("budgetPct").textContent=(d.month_pct_of_budget||0)+"%";
-  document.getElementById("allTime").textContent=money(d.all_time_total);
+  document.getElementById("monthBudget").textContent=Number(d.month_budget||0).toFixed(0);
+  const pct=Math.min(100,d.month_pct_of_budget||0);
+  const meter=document.getElementById("budgetMeter");
+  meter.style.width=pct+"%";
+  meter.className="meter-fill "+(pct>90?"meter-red":pct>70?"meter-amber":"meter-cyan");
+  document.getElementById("budgetPct").textContent=pct.toFixed(1)+"%";
 
-  // top KPIs: biggest line + cost split
-  const svcs=(d.services||[]).filter(s=>s.spent_this_period>0)
-    .sort((a,b)=>b.spent_this_period-a.spent_this_period);
-  const top=svcs[0];
+  // Bill KPIs
+  const svcs=(d.services||[]).filter(s=>s.spent_this_period>0).sort((a,b)=>b.spent_this_period-a.spent_this_period);
   const autoSum=(d.services||[]).reduce((a,s)=>a+(s.auto||0),0);
-  const manualSum=(d.services||[]).reduce((a,s)=>a+(s.manual||0),0);
-  document.getElementById("kpis").innerHTML=[
-    {k:"Top cost driver",v:top?top.service:"—",d:top?money(top.spent_this_period)+" this month":""},
-    {k:"Services active",v:svcs.length,d:"with spend this month"},
+  const manSum=(d.services||[]).reduce((a,s)=>a+(s.manual||0),0);
+  document.getElementById("billKpis").innerHTML=[
+    {k:"All-time total",v:money(d.all_time_total)},
+    {k:"Period",v:fmtPeriod(d.current_period)||"—"},
     {k:"Auto-logged",v:money(autoSum),d:"measured by pipeline"},
-    {k:"Manually entered",v:money(manualSum),d:"from provider bills"},
-  ].map(c=>`<div class="kpi"><div class="k">${c.k}</div>
-    <div class="v mono" style="text-transform:capitalize">${typeof c.v==='number'?c.v:c.v}</div>
-    ${c.d?`<div class="d">${c.d}</div>`:""}</div>`).join("");
+    {k:"Manually entered",v:money(manSum),d:"from provider bills"},
+    {k:"Services with spend",v:svcs.length},
+    {k:"Top driver",v:svcs[0]?(SVC_META[svcs[0].service]?.label||svcs[0].service):"—",
+      d:svcs[0]?money(svcs[0].spent_this_period)+" this month":""},
+  ].map(c=>`<div class="stat-row"><span class="label">${c.k}</span>
+    <div style="text-align:right"><div class="val mono">${c.v}</div>${c.d?`<div style="font-size:11px;color:var(--faint)">${c.d}</div>`:""}</div></div>`).join("");
 
-  // per-service rows
-  document.getElementById("services").innerHTML=(d.services||[])
-    .filter(s=>s.spent_this_period>0||s.spent_all_time>0)
-    .map(s=>{
-      const pct=s.budget?Math.min(100,s.pct_of_budget||0):0;
-      const over=s.budget&&(s.pct_of_budget||0)>100;
-      const budgetTxt=s.budget?` / ${money(s.budget)}`:"";
-      return `<div class="svc">
-        <div class="name">${s.service}
-          ${s.manual>0?`<small>incl ${money(s.manual)} entered</small>`:""}</div>
-        <div class="track"><i class="${over?'over':''}" style="width:${pct}%"></i></div>
-        <div class="amt"><span class="mono">${money(s.spent_this_period)}</span>
-          <span class="b">${budgetTxt}</span></div>
-      </div>`;
-    }).join("")||`<div class="empty">No spend recorded yet.</div>`;
+  // Service breakdown
+  const allSvcs=d.services||[];
+  document.getElementById("serviceList").innerHTML=allSvcs.map(s=>{
+    const m=SVC_META[s.service]||{icon:"💳",label:s.service,color:"var(--muted)"};
+    const pct=s.budget?Math.min(100,s.pct_of_budget||0):0;
+    const over=s.budget&&(s.pct_of_budget||0)>100;
+    const color=over?"var(--red)":pct>80?"var(--amber)":m.color;
+    return`<div class="service-row">
+      <div class="svc-icon" style="background:${m.color}22;color:${m.color}">${m.icon}</div>
+      <div>
+        <div class="svc-name">${m.label}</div>
+        <div class="svc-model">${m.note||""}</div>
+        <div class="bar-inline"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+      <div class="mono" style="text-align:right;font-weight:600">${money(s.spent_this_period)}</div>
+      <div class="mono" style="text-align:right;color:var(--muted)">${money(s.spent_all_time)}</div>
+      <div class="hide-sm" style="color:var(--faint);font-size:12px;text-align:right">
+        ${s.budget?`Budget ${money(s.budget)}`:"—"}
+      </div>
+      <div class="mono" style="text-align:right;color:${color}">${s.budget?(s.pct_of_budget||0).toFixed(1)+"%":"—"}</div>
+    </div>`;
+  }).join("");
 
+  // Spend trend chart
   drawTrend(d.trend||[]);
 
-  // recent charges
-  const rows=(d.recent||[]).map(r=>`<tr>
-    <td style="text-transform:capitalize">${r.service}</td>
-    <td><span class="pill ${r.kind}">${r.kind}</span></td>
-    <td class="muted">${r.note||"—"}${r.video_id?` · ${r.video_id}`:""}</td>
-    <td class="r mono">${money(r.amount)}</td>
-    <td class="muted mono">${(r.ts||"").slice(0,16).replace("T"," ")}</td>
-  </tr>`).join("");
-  document.querySelector("#recentTable tbody").innerHTML=rows||
-    `<tr><td colspan="5" class="empty">No charges recorded yet.</td></tr>`;
+  // Per-video cost breakdown
+  const pv=d.per_video||{};
+  const pvItems=[
+    {label:"fal.ai (Seedance clips)",val:pv.fal,icon:"🎬"},
+    {label:"ElevenLabs (voiceover)",val:pv.elevenlabs,icon:"🎙️"},
+    {label:"Anthropic (script gen)",val:pv.anthropic,icon:"🧠"},
+    {label:"─────────────",val:null},
+    {label:"Total per video",val:pv.total,bold:true},
+  ];
+  document.getElementById("perVideoCosts").innerHTML=pvItems.map(r=>
+    r.val===null&&!r.label.includes("─")?"":`<div class="stat-row">
+      <span class="label">${r.icon||""} ${r.label}</span>
+      <span class="val mono ${r.bold?"":""}${r.val!=null&&r.val<0.01?" style='color:var(--faint)':''":""}">${r.val!=null?moneyFull(r.val):"─"}</span>
+    </div>`).join("");
+
+  // ROI
+  const roi=d.roi||{};
+  document.getElementById("roiPanel").innerHTML=[
+    {k:"Videos approved",v:fmt(roi.videos_approved)},
+    {k:"Cost per approved video",v:money(roi.cost_per_approved)},
+    {k:"Cost per 1K views",v:roi.cost_per_1k_views!=null?money(roi.cost_per_1k_views):"—"},
+    {k:"Cost per new follow",v:roi.cost_per_follow!=null?money(roi.cost_per_follow):"—"},
+    {k:"Total views",v:fmt(roi.total_views)},
+    {k:"Total follows gained",v:fmt(roi.total_follows)},
+  ].map(r=>`<div class="roi-row">
+    <span style="color:var(--muted)">${r.k}</span>
+    <span class="val mono">${r.v}</span>
+  </div>`).join("")
+  +(roi.roi_note?`<div style="font-size:11px;color:var(--faint);margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">${roi.roi_note}</div>`:"");
+
+  // Recent table
+  const kindBadge={auto:'<span class="badge badge-cyan">auto</span>',manual:'<span class="badge badge-muted">manual</span>'};
+  document.getElementById("recentTable").innerHTML=(d.recent||[]).map(r=>{
+    const m=SVC_META[r.service]||{icon:"💳",label:r.service};
+    return`<tr>
+      <td>${m.icon} ${m.label}</td>
+      <td class="mono" style="font-weight:600">${money(r.amount)}</td>
+      <td>${kindBadge[r.kind]||r.kind}</td>
+      <td style="color:var(--muted)">${r.video_id?`<span class="mono" style="font-size:11px">${r.video_id}</span> `:""} ${r.note||""}</td>
+      <td style="color:var(--faint);font-size:12px">${(r.ts||"").replace("T"," ").slice(0,16)}</td>
+    </tr>`;
+  }).join("")||`<tr><td colspan="5" style="text-align:center;color:var(--faint);padding:24px">No charges recorded yet</td></tr>`;
 }
 
 function drawTrend(trend){
-  const svg=document.getElementById("trendChart");const W=600,H=180,pad=24;
-  if(!trend.length){svg.innerHTML=`<text x="${W/2}" y="${H/2}" fill="#4d6376" text-anchor="middle" font-size="13">No spend history yet</text>`;return;}
-  if(trend.length===1){
-    const t=trend[0];
-    svg.innerHTML=`<text x="${W/2}" y="${H/2-8}" fill="#f5b14c" text-anchor="middle" font-size="34" font-family="monospace">$${t.total.toFixed(2)}</text>
-      <text x="${W/2}" y="${H/2+22}" fill="#7d93a6" text-anchor="middle" font-size="12">${fmtPeriod(t.period)} · first month tracked</text>`;
-    return;
-  }
-  const xs=trend.map((_,i)=>pad+i*(W-2*pad)/(trend.length-1));
-  const max=Math.max(...trend.map(t=>t.total))*1.2||1;
-  const y=v=>H-pad-(v/max)*(H-2*pad);
-  const pts=trend.map((t,i)=>`${xs[i]},${y(t.total)}`).join(" ");
-  svg.innerHTML=`<polyline points="${pts}" fill="none" stroke="#f5b14c" stroke-width="2"
-    stroke-linejoin="round"/>${trend.map((t,i)=>`<circle cx="${xs[i]}" cy="${y(t.total)}" r="3" fill="#f5b14c"/>
-    <text x="${xs[i]}" y="${H-6}" fill="#4d6376" font-size="10" text-anchor="middle" font-family="monospace">${fmtPeriod(t.period).slice(0,3)}</text>`).join("")}`;
+  const canvas=document.getElementById("trendChart");
+  const ctx=canvas.getContext("2d");
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.parentElement.clientWidth;const H=140;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";
+  ctx.scale(dpr,dpr);
+  if(!trend.length){ctx.fillStyle="#4d6376";ctx.font="13px Inter";ctx.fillText("No trend data yet",W/2-60,H/2);return;}
+  const vals=trend.map(t=>t.total||0);
+  const maxV=Math.max(...vals,0.01)*1.2;
+  const pad={t:10,r:10,b:28,l:50};
+  const uw=(W-pad.l-pad.r)/(vals.length-1||1);
+  const uh=(H-pad.t-pad.b)/maxV;
+  ctx.strokeStyle="#243240";ctx.lineWidth=1;
+  [0,.5,1].forEach(f=>{
+    const y=H-pad.b-f*maxV*uh;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle="#4d6376";ctx.font="10px Inter";ctx.textAlign="right";
+    ctx.fillText("$"+(f*maxV).toFixed(0),pad.l-4,y+4);
+  });
+  const pts=vals.map((v,i)=>({x:pad.l+i*uw,y:H-pad.b-v*uh,period:trend[i].period}));
+  ctx.beginPath();ctx.moveTo(pts[0].x,H-pad.b);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H-pad.b);ctx.closePath();
+  ctx.fillStyle="rgba(167,139,250,.1)";ctx.fill();
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle="var(--purple)";ctx.lineWidth=2;ctx.stroke();
+  pts.forEach(p=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fillStyle="#a78bfa";ctx.fill();
+    ctx.fillStyle="#e6eef5";ctx.font="bold 11px Inter";ctx.textAlign="center";
+    ctx.fillText("$"+Number(vals[pts.indexOf(p)]).toFixed(0),p.x,p.y-8);
+  });
+  ctx.fillStyle="#4d6376";ctx.font="11px Inter";ctx.textAlign="center";
+  pts.forEach(p=>{
+    const[y,m]=p.period.split("-");
+    const label=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1]+" "+y.slice(2);
+    ctx.fillText(label,p.x,H-6);
+  });
 }
 
-load();
+load();window.addEventListener("resize",()=>load());
 </script>
 </body>
 </html>
