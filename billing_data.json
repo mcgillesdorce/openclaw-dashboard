@@ -1,37 +1,37 @@
 {
-  "updated": "2026-06-22T09:38:24",
+  "updated": "2026-06-22T09:44:54",
   "current_period": "2026-06",
-  "month_total": 2.13,
+  "month_total": 24.13,
   "month_budget": 275.0,
-  "month_pct_of_budget": 0.8,
-  "all_time_total": 2.13,
+  "month_pct_of_budget": 8.8,
+  "all_time_total": 503.53,
   "services": [
     {
       "service": "fal",
       "spent_this_period": 2.0,
-      "spent_all_time": 2.0,
+      "spent_all_time": 72.0,
       "budget": 200.0,
       "pct_of_budget": 1.0,
       "auto": 2.0,
-      "manual": 0.0
+      "manual": 70.0
     },
     {
       "service": "elevenlabs",
-      "spent_this_period": 0.13,
-      "spent_all_time": 0.13,
+      "spent_this_period": 22.13,
+      "spent_all_time": 22.13,
       "budget": 30.0,
-      "pct_of_budget": 0.4,
+      "pct_of_budget": 73.8,
       "auto": 0.13,
-      "manual": 0.0
+      "manual": 22.0
     },
     {
       "service": "anthropic",
       "spent_this_period": 0.0,
-      "spent_all_time": 0.0,
+      "spent_all_time": 409.4,
       "budget": 25.0,
       "pct_of_budget": 0.0,
       "auto": 0.0,
-      "manual": 0.0
+      "manual": 409.4
     },
     {
       "service": "google",
@@ -64,10 +64,41 @@
   "trend": [
     {
       "period": "2026-06",
-      "total": 2.13
+      "total": 24.13
+    },
+    {
+      "period": "all-time",
+      "total": 479.4
     }
   ],
   "recent": [
+    {
+      "service": "anthropic",
+      "amount": 409.4,
+      "kind": "manual",
+      "note": "All-time Anthropic API spend (logged 2026-06-22)",
+      "period": "all-time",
+      "ts": "2026-06-22T09:44:03",
+      "video_id": null
+    },
+    {
+      "service": "fal",
+      "amount": 70.0,
+      "kind": "manual",
+      "note": "All-time fal.ai spend (logged 2026-06-22)",
+      "period": "all-time",
+      "ts": "2026-06-22T09:44:03",
+      "video_id": null
+    },
+    {
+      "service": "elevenlabs",
+      "amount": 22.0,
+      "kind": "manual",
+      "note": "ElevenLabs Creator plan \u2014 monthly subscription",
+      "period": "2026-06",
+      "ts": "2026-06-22T09:44:03",
+      "video_id": null
+    },
     {
       "service": "fal",
       "amount": 2.0,
