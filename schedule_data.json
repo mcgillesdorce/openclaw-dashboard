@@ -1,0 +1,53 @@
+{
+  "last_updated": "2026-06-22T13:01:38.416172",
+  "events": [
+    {
+      "id": "finch_0",
+      "timestamp": "2026-06-22T13:01:37.915586",
+      "agent": "finch",
+      "task": "cost_analysis",
+      "status": "running",
+      "start_time": "2026-06-22T13:01:37.915587",
+      "end_time": null,
+      "duration_seconds": null,
+      "cost_usd": null,
+      "tokens_used": null,
+      "data": {
+        "type": "morning"
+      }
+    },
+    {
+      "id": "approval_1",
+      "timestamp": "2026-06-22T13:01:38.416154",
+      "agent": "psyche",
+      "task": "approval_review",
+      "status": "approved",
+      "duration_seconds": null,
+      "cost_usd": null,
+      "data": {
+        "total_recommendations": 3,
+        "approved_count": 2,
+        "rejected_count": 1,
+        "approved_indices": [
+          0,
+          2
+        ],
+        "rejected_indices": [
+          1
+        ],
+        "recommendations": [
+          "Decision Fatigue",
+          "Hook redesign",
+          "Model optimization"
+        ]
+      },
+      "result": "Approved 2/3"
+    }
+  ],
+  "today": "2026-06-22",
+  "totals": {
+    "tasks": 0,
+    "cost": 0.0,
+    "errors": 0
+  }
+}
