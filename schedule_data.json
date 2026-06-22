@@ -78,5 +78,6 @@
     "tasks_completed": 2,
     "total_cost": "$0.06",
     "errors": 0
-  }
+  },
+  "cache_bust": "1782148792.2612894"
 }
