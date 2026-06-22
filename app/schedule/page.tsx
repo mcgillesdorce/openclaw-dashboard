@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+'use client';
 
 // Revalidate every 30 seconds
 export const revalidate = 30;
@@ -13,7 +13,7 @@ const STATIC_SCHEDULE = [
   { time: '20:00', ampm: 'PM', agent: 'Psyche', icon: '⚙️', task: 'Evening state sync' },
 ];
 
-async function ScheduleContent() {
+export default function Schedule() {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '32px', marginBottom: '32px' }}>
       {/* Static Schedule Sidebar */}
@@ -109,13 +109,5 @@ async function ScheduleContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function Schedule() {
-  return (
-    <Suspense fallback={<div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading schedule...</div>}>
-      <ScheduleContent />
-    </Suspense>
   );
 }
