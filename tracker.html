@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Psyche — Tracker</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ── Kanban board ── */
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+@media(max-width:1100px){.board{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.board{grid-template-columns:1fr}}
+.lane{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:120px}
+.lane-title{font-size:11px;text-transform:uppercase;letter-spacing:.12em;padding:4px 0 10px;
+  display:flex;align-items:center;gap:8px}
+.lane-count{background:var(--line);border-radius:20px;padding:1px 7px;font-size:11px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;
+  margin-bottom:8px;cursor:default;transition:border-color .15s}
+.card:hover{border-color:var(--cyan-dim)}
+.card-topic{font-size:13px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.card-agent{font-size:11px;color:var(--faint);margin-bottom:6px}
+.card-step{font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:6px}
+.card-step.gen{background:var(--cyan-faint);color:var(--cyan)}
+.card-step.review{background:var(--amber-faint);color:var(--amber)}
+.card-step.done{background:var(--green-faint);color:var(--green)}
+.card-step.err{background:var(--red-faint);color:var(--red)}
+.card-step.queue{background:var(--line);color:var(--muted)}
+.card-ratings{display:flex;gap:4px;margin-top:4px}
+.pip{width:20px;height:4px;border-radius:2px;background:var(--line)}
+.pip.filled{background:var(--cyan)}
+.pip.amber{background:var(--amber)}
+.pip.red{background:var(--red)}
+.card-cost{font-size:11px;color:var(--faint);margin-top:6px}
+
+/* ── Quality gate ── */
+.gate-row{display:grid;grid-template-columns:130px 1fr 60px 60px;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.gate-row:last-child{border-bottom:none}
+.gate-label{color:var(--muted)}
+.gate-target{font-size:12px;color:var(--faint)}
+.gate-current{text-align:right;font-weight:600}
+
+/* ── Calendar ── */
+.cal-row{display:grid;grid-template-columns:100px 1fr 90px 80px;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.cal-row:last-child{border-bottom:none}
+.cal-date{color:var(--muted);font-size:12px}
+.priority-high{color:var(--amber)}
+.priority-low{color:var(--faint)}
+
+/* ── Goal dials ── */
+.dial-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.dial-grid{grid-template-columns:repeat(2,1fr)}}
+.dial{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.dial-num{font-size:32px;font-weight:800;letter-spacing:-.03em}
+.dial-den{font-size:14px;color:var(--muted);font-weight:400}
+.dial-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:4px}
+.dial-bar{height:4px;border-radius:2px;background:var(--line);margin-top:10px;overflow:hidden}
+.dial-fill{height:100%;border-radius:2px;background:var(--cyan)}
+
+/* ── Worklog ── */
+.log-row{display:grid;grid-template-columns:80px 120px 1fr auto;gap:12px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}
+.log-row:last-child{border-bottom:none}
+.log-agent{display:flex;align-items:center;gap:6px}
+.log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ── Rubric ── */
+.rubric-dim{margin-bottom:14px}
+.rubric-title{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.rubric-body{font-size:12px;color:var(--muted);line-height:1.6}
+.score-band{display:flex;gap:4px;margin-top:6px}
+.score-pip{flex:1;border-radius:3px;padding:4px 6px;font-size:11px;text-align:center;font-weight:600}
+
+/* ── Improvement flags ── */
+.flag{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.flag-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.flag-count{background:var(--amber-faint);color:var(--amber);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:600}
+.flag-text{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">Psyche <span>Mission Control</span></a>
+  <a class="tab" href="/">Overview</a>
+  <a class="tab" href="/analytics">Analytics</a>
+  <a class="tab" href="/agents">Agents</a>
+  <a class="tab" href="/billing">Billing</a>
+  <a class="tab active" href="/tracker">Tracker</a>
+  <span class="nav-status" id="navUpdated"></span>
+  <div class="nav-dot"></div>
+</nav>
+<div class="page">
+
+  <!-- Weekly goals -->
+  <div class="section">
+    <div class="section-title">This Week — Goals vs Actual</div>
+    <div class="dial-grid" id="dialGrid"></div>
+  </div>
+
+  <!-- Production board -->
+  <div class="section">
+    <div class="section-title">Production Board</div>
+    <div class="board">
+      <div class="lane">
+        <div class="lane-title" style="color:var(--muted)">⏳ Queued <span class="lane-count" id="cnt-queue">0</span></div>
+        <div id="lane-queue"></div>
+      </div>
+      <div class="lane">
+        <div class="lane-title" style="color:var(--cyan)">⚙️ Generating <span class="lane-count" id="cnt-gen">0</span></div>
+        <div id="lane-gen"></div>
+      </div>
+      <div class="lane">
+        <div class="lane-title" style="color:var(--amber)">👁 Review <span class="lane-count" id="cnt-review">0</span></div>
+        <div id="lane-review"></div>
+      </div>
+      <div class="lane">
+        <div class="lane-title" style="color:var(--green)">✅ Done <span class="lane-count" id="cnt-done">0</span></div>
+        <div id="lane-done"></div>
+      </div>
+      <div class="lane">
+        <div class="lane-title" style="color:var(--red)">❌ Rejected <span class="lane-count" id="cnt-rejected">0</span></div>
+        <div id="lane-rejected"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quality gates + Content calendar -->
+  <div class="grid g2 section">
+    <div>
+      <div class="section-title">Quality Gates — Minimum Standards</div>
+      <div class="panel" id="qualityGates"></div>
+    </div>
+    <div>
+      <div class="section-title">Content Calendar — Upcoming</div>
+      <div class="panel" id="calendar"></div>
+    </div>
+  </div>
+
+  <!-- Improvement flags + Scoring rubric -->
+  <div class="grid g2 section">
+    <div>
+      <div class="section-title">Recurring Issues — From Rejected Videos</div>
+      <div id="flags"></div>
+    </div>
+    <div>
+      <div class="section-title">Scoring Rubric — Rating Guide</div>
+      <div class="panel" id="rubric"></div>
+    </div>
+  </div>
+
+  <!-- Agent worklog -->
+  <div class="section">
+    <div class="section-title">Agent Worklog — Recent Actions</div>
+    <div class="panel panel-sm" id="worklog"></div>
+  </div>
+
+  <!-- Consistency metrics -->
+  <div class="section">
+    <div class="section-title">Consistency — Are We Hitting Targets?</div>
+    <div class="grid g4" id="consistency"></div>
+  </div>
+
+  <div class="data-footer">source: <span id="src">—</span></div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SAMPLE={
+  updated:new Date().toISOString().slice(0,19),
+  week_goals:{videos_target:5,videos_done:2,budget_target:12,budget_spent:4.46,
+    approval_target:70,approval_actual:100,views_target:20000,views_actual:8200},
+  board:[
+    {id:"v001",topic:"Sunk Cost Fallacy",status:"queue",category:"Cognitive Biases",priority:"high"},
+    {id:"v002",topic:"Imposter Syndrome",status:"queue",category:"Mental Health",priority:"normal"},
+    {id:"v003",topic:"The Zeigarnik Effect",status:"generating",step:"Rendering clips 7/10",
+      agent:"Seedance",cost_so_far:1.40},
+    {id:"v004",topic:"Loss Aversion",status:"review",step:"Awaiting review",
+      agent:"Psyche",ratings:{hook:5,visual:4,script:5,pacing:4},cost:2.21},
+    {id:"v005",topic:"Anchoring Bias",status:"done",cost:2.24,
+      ratings:{hook:5,visual:4,script:5,pacing:5},views:18000,approved:true},
+    {id:"v006",topic:"FOMO",status:"done",cost:2.23,
+      ratings:{hook:4,visual:4,script:4,pacing:4},views:32000,approved:true},
+    {id:"v007",topic:"The Spotlight Effect",status:"rejected",cost:2.18,
+      ratings:{hook:2,visual:3,script:4,pacing:2},rejection_note:"Hook too slow, pacing off"},
+  ],
+  quality_gates:[
+    {dim:"Hook rating",target:4,current:4.2,unit:"/5"},
+    {dim:"Visual rating",target:3.5,current:3.9,unit:"/5"},
+    {dim:"Script rating",target:4,current:4.3,unit:"/5"},
+    {dim:"Pacing rating",target:3.5,current:4.0,unit:"/5"},
+    {dim:"Avg engagement",target:8,current:11.3,unit:"%"},
+    {dim:"Cost per video",target:3.0,current:2.21,unit:"$",lower_is_better:true},
+    {dim:"Approval rate",target:60,current:71,unit:"%"},
+  ],
+  calendar:[
+    {date:"Mon 06-23",topic:"Sunk Cost Fallacy",category:"Cognitive Biases",priority:"high"},
+    {date:"Tue 06-24",topic:"Imposter Syndrome",category:"Mental Health",priority:"normal"},
+    {date:"Wed 06-25",topic:"The Zeigarnik Effect",category:"Memory",priority:"normal"},
+    {date:"Thu 06-26",topic:"Social Proof",category:"Social Psychology",priority:"high"},
+    {date:"Fri 06-27",topic:"Negativity Bias",category:"Cognitive Biases",priority:"normal"},
+    {date:"Mon 06-30",topic:"The Peak-End Rule",category:"Memory",priority:"normal"},
+    {date:"Tue 07-01",topic:"Choice Paralysis",category:"Decision Making",priority:"high"},
+  ],
+  flags:[
+    {issue:"Hook too slow / no pattern interrupt",count:4,fix:"Start with a surprising stat or question. First 2s must hook."},
+    {issue:"Pacing drags in middle section",count:3,fix:"Beats 4-7 should be fastest. Cut any beat exceeding 9s narration."},
+    {issue:"Visuals too abstract / generic",count:2,fix:"Prompt Seedance with specific human actions, not just background imagery."},
+    {issue:"Hashtags not matching content",count:2,fix:"Claude: include 2 niche tags (e.g. #cognitivebias) + 2 trend tags."},
+  ],
+  worklog:[
+    {ts:"01:05",agent:"Psyche",icon:"🤖",color:"#60a5fa",action:"Approved topic selection",detail:"Sunk Cost Fallacy, Imposter Syndrome"},
+    {ts:"00:58",agent:"Psyche",icon:"🤖",color:"#60a5fa",action:"Synced dashboard data",detail:"3 new data points"},
+    {ts:"23:20",agent:"ElevenLabs",icon:"🎙️",color:"#f5b14c",action:"Voiceover rendered",detail:"The Zeigarnik Effect · 94s · 0.13$"},
+    {ts:"23:18",agent:"Seedance",icon:"🎬",color:"#34e0c4",action:"10 clips generated",detail:"The Zeigarnik Effect · $2.00"},
+    {ts:"23:15",agent:"Claude",icon:"🧠",color:"#a78bfa",action:"Script generated",detail:"The Zeigarnik Effect · 234 words · 10 beats"},
+    {ts:"22:10",agent:"Psyche",icon:"🤖",color:"#60a5fa",action:"Video rejected",detail:"Anchoring Bias — hook/pacing below gate"},
+    {ts:"21:55",agent:"ElevenLabs",icon:"🎙️",color:"#f5b14c",action:"Voiceover rendered",detail:"Loss Aversion · 91s"},
+    {ts:"21:50",agent:"Seedance",icon:"🎬",color:"#34e0c4",action:"10 clips generated",detail:"Loss Aversion · $2.00"},
+  ],
+  consistency:[
+    {label:"Hook ≥ 4",target:4,current:4.2,unit:"avg",pass:true},
+    {label:"Script ≥ 4",target:4,current:4.3,unit:"avg",pass:true},
+    {label:"Pacing ≥ 3.5",target:3.5,current:4.0,unit:"avg",pass:true},
+    {label:"Cost ≤ $3",target:3,current:2.21,unit:"$/vid",pass:true},
+    {label:"Approval ≥ 60%",target:60,current:71,unit:"%",pass:true},
+    {label:"Engagement ≥ 8%",target:8,current:11.3,unit:"%",pass:true},
+    {label:"5 vids/week",target:5,current:2,unit:"this wk",pass:false},
+    {label:"≤ $15/week",target:15,current:4.46,unit:"spent",pass:true},
+  ]
+};
+
+const STATUS_COLORS={queue:"var(--muted)",generating:"var(--cyan)",
+  review:"var(--amber)",done:"var(--green)",rejected:"var(--red)"};
+
+function fmt(n){return n==null?"—":Number(n).toLocaleString()}
+function money(n){return n==null?"$—":"$"+Number(n).toFixed(2)}
+
+async function load(){
+  let data,live=false;
+  try{
+    const url=window.__TRACKER_URL__||window.__DATA_URL__||"tracker_data.json";
+    const r=await fetch(url,{cache:"no-store"});
+    if(r.ok){data=await r.json();live=true;}
+  }catch(e){}
+  if(!data)data=SAMPLE;
+  render(data,live);
+}
+
+function render(d,live){
+  document.getElementById("src").textContent=live?"live · "+d.updated?.replace("T"," "):"sample data";
+  document.getElementById("navUpdated").textContent=live?"live":"demo";
+
+  // Weekly dials
+  const g=d.week_goals||{};
+  const dials=[
+    {label:"Videos",num:g.videos_done||0,den:g.videos_target||5,unit:"",color:"var(--cyan)"},
+    {label:"Budget",num:Number(g.budget_spent||0).toFixed(0),den:"$"+(g.budget_target||15),unit:"$",color:"var(--amber)"},
+    {label:"Approval",num:g.approval_actual||0,den:g.approval_target||60,unit:"%",color:"var(--green)"},
+    {label:"Views",num:fmtK(g.views_actual||0),den:fmtK(g.views_target||20000),unit:"",color:"var(--purple)"},
+  ];
+  document.getElementById("dialGrid").innerHTML=dials.map(dl=>{
+    const pct=typeof dl.num==="number"&&typeof dl.den==="number"?Math.min(100,dl.num/dl.den*100):50;
+    return`<div class="dial">
+      <div class="dial-num mono" style="color:${dl.color}">${dl.num}<span class="dial-den">${dl.unit}</span></div>
+      <div style="font-size:12px;color:var(--faint)">of ${dl.den}${dl.unit} goal</div>
+      <div class="dial-label">${dl.label}</div>
+      <div class="dial-bar"><div class="dial-fill" style="width:${pct}%;background:${dl.color}"></div></div>
+    </div>`;
+  }).join("");
+
+  // Board
+  const lanes={queue:[],generating:[],review:[],done:[],rejected:[]};
+  (d.board||[]).forEach(v=>{if(lanes[v.status])lanes[v.status].push(v);});
+  Object.entries(lanes).forEach(([status,cards])=>{
+    document.getElementById("cnt-"+status).textContent=cards.length;
+    document.getElementById("lane-"+status).innerHTML=cards.map(c=>buildCard(c)).join("")||
+      `<div style="color:var(--faint);font-size:12px;text-align:center;padding:12px">empty</div>`;
+  });
+
+  // Quality gates
+  document.getElementById("qualityGates").innerHTML=(d.quality_gates||[]).map(g=>{
+    const ok=g.lower_is_better?g.current<=g.target:g.current>=g.target;
+    const color=ok?"var(--green)":"var(--red)";
+    const pct=g.lower_is_better
+      ?Math.min(100,g.current/g.target*100)
+      :Math.min(100,g.current/(g.target*1.5||1)*100);
+    return`<div class="gate-row">
+      <span class="gate-label">${g.dim}</span>
+      <span>
+        <div style="height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:2px">
+          <div style="height:100%;border-radius:2px;background:${color};width:${pct}%"></div></div>
+        <span class="gate-target">target: ${g.lower_is_better?"≤":"≥"}${g.target}${g.unit}</span>
+      </span>
+      <span class="gate-current mono" style="color:${color}">${g.current}${g.unit}</span>
+      <span>${ok?"✅":"❌"}</span>
+    </div>`;
+  }).join("")||`<div class="empty">No data yet</div>`;
+
+  // Calendar
+  const priColor={high:"var(--amber)",normal:"var(--faint)"};
+  document.getElementById("calendar").innerHTML=(d.calendar||[]).map(e=>
+    `<div class="cal-row">
+      <span class="cal-date">${e.date}</span>
+      <span style="font-weight:500">${e.topic}</span>
+      <span style="font-size:11px;color:var(--faint)">${e.category||""}</span>
+      <span style="color:${priColor[e.priority]||"var(--faint)"};font-size:11px">${e.priority||""}</span>
+    </div>`).join("")||`<div class="empty">No calendar entries</div>`;
+
+  // Flags
+  document.getElementById("flags").innerHTML=(d.flags||[]).map(f=>
+    `<div class="flag">
+      <div class="flag-header">
+        <span class="flag-count">${f.count}x</span>
+        <span style="font-size:13px;font-weight:600">${f.issue}</span>
+      </div>
+      <div class="flag-text">💡 ${f.fix}</div>
+    </div>`).join("")||`<div class="empty">No recurring issues — great consistency!</div>`;
+
+  // Rubric
+  const rubricDims=[
+    {name:"Hook",icon:"🪝",desc:"Does the first 2 seconds stop the scroll?",
+      bands:["No hook at all","Weak, generic opener","Decent but not urgent","Strong question or stat","Stops scroll instantly"]},
+    {name:"Visual",icon:"🎬",desc:"Do the clips match and reinforce the narration?",
+      bands:["Off-topic or jarring","Loosely related","Adequate, on-topic","Strong visual metaphor","Perfect sync with audio"]},
+    {name:"Script",icon:"📝",desc:"Is the narration clear, sharp, and informative?",
+      bands:["Unclear or wrong","Rambling or vague","Correct but flat","Engaging and informative","Concise, memorable, shareable"]},
+    {name:"Pacing",icon:"⚡",desc:"Does the rhythm maintain attention for the full duration?",
+      bands:["Drags throughout","Slow in places","Even but unremarkable","Good tempo variation","Perfect — never a dull moment"]},
+  ];
+  const bandColors=["var(--red)","var(--red)","var(--amber)","var(--green)","var(--cyan)"];
+  document.getElementById("rubric").innerHTML=rubricDims.map(r=>
+    `<div class="rubric-dim">
+      <div class="rubric-title">${r.icon} ${r.name}</div>
+      <div class="rubric-body">${r.desc}</div>
+      <div class="score-band">
+        ${r.bands.map((b,i)=>`<div class="score-pip" style="background:${bandColors[i]}22;color:${bandColors[i]}" title="${b}">${i+1}</div>`).join("")}
+      </div>
+    </div>`).join("");
+
+  // Worklog
+  document.getElementById("worklog").innerHTML=(d.worklog||[]).map(w=>
+    `<div class="log-row">
+      <span style="color:var(--faint)">${w.ts||""}</span>
+      <div class="log-agent">
+        <div class="log-dot" style="background:${w.color||"var(--muted)"}"></div>
+        <span style="color:${w.color||"var(--muted)"};font-size:12px">${w.agent||""}</span>
+      </div>
+      <span>${w.action||""}</span>
+      <span style="color:var(--faint)">${w.detail||""}</span>
+    </div>`).join("")||`<div class="empty">No recent agent activity</div>`;
+
+  // Consistency checks
+  document.getElementById("consistency").innerHTML=(d.consistency||[]).map(c=>{
+    const color=c.pass?"var(--green)":"var(--red)";
+    return`<div class="kpi" style="border-color:${c.pass?"var(--line)":"var(--red-faint)"}">
+      <div class="k">${c.label}</div>
+      <div class="v mono" style="color:${color}">${c.current}${c.unit}</div>
+      <div class="d" style="color:${c.pass?"var(--green)":"var(--red)"}">${c.pass?"✅ passing":"❌ below target"}</div>
+    </div>`;
+  }).join("");
+}
+
+function buildCard(c){
+  const stepClass={generating:"gen",review:"review",done:"done",rejected:"err",queue:"queue"}[c.status]||"queue";
+  const stepLabel=c.step||(c.status==="done"?(c.approved?"Approved ✅":"Done"):c.status);
+  let ratingHtml="";
+  if(c.ratings){
+    const r=c.ratings;
+    const avg=((r.hook||0)+(r.visual||0)+(r.script||0)+(r.pacing||0))/4;
+    const color=avg>=4?"filled":avg>=3?"amber":"red";
+    ratingHtml=`<div class="card-ratings">${[r.hook,r.visual,r.script,r.pacing].map(v=>
+      `<div class="pip ${v>=4?"filled":v>=3?"amber":"red"}" title="${v}/5"></div>`).join("")}
+      <span style="font-size:11px;color:var(--muted);margin-left:4px">${avg.toFixed(1)}</span></div>`;
+  }
+  return`<div class="card">
+    <div class="card-topic">${c.topic}</div>
+    <div class="card-agent">${c.category||""} ${c.agent?"· "+c.agent:""}</div>
+    <div class="card-step ${stepClass}">${stepLabel}</div>
+    ${ratingHtml}
+    ${c.rejection_note?`<div style="font-size:11px;color:var(--red);margin-top:4px">↩ ${c.rejection_note}</div>`:""}
+    ${c.views?`<div class="card-cost">👁 ${fmt(c.views)} views</div>`:""}
+    ${c.cost||c.cost_so_far?`<div class="card-cost">💸 ${money(c.cost||c.cost_so_far)}${c.cost_so_far?" so far":""}</div>`:""}
+  </div>`;
+}
+
+function fmtK(n){if(n==null)return"—";return n>=1000?(n/1000).toFixed(0)+"K":n.toString()}
+
+load();
+</script>
+</body>
+</html>
