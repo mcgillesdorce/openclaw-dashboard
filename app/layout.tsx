@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import './globals.css';
 import Navigation from '@/app/components/Navigation';
 
@@ -29,6 +30,13 @@ export default function RootLayout({
         <main className="page-container">
           {children}
         </main>
+        <footer className="site-footer">
+          <span>© {new Date().getFullYear()} Psyche Mission Control</span>
+          <span className="site-footer-links">
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+          </span>
+        </footer>
       </body>
     </html>
   );
